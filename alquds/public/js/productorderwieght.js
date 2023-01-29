@@ -58,7 +58,7 @@ frappe.ui.form.on("Product Order Details", {
         let row = frm.selected_doc.idx;
         frappe.call({
           async: false,
-          method: "sap.api.generate_qr",
+          method: "alquds.alquds.Qouds.generate_qr",
           args: {
             data: {
               customer_no: frm.doc.customer_no,
