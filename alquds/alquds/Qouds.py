@@ -1,3 +1,4 @@
+from alquds.qr_generator import get_qr
 from frappe.www.printview import get_context
 import copy
 import json
@@ -253,6 +254,9 @@ def convert_markdown(doc, meta):
 			if value and "<!-- markdown -->" in value:
 				doc.set(field.fieldname, frappe.utils.md_to_html(value))
 
+@frappe.whitelist()
+def generate_qr(data):
+    return get_qr(data)
 
 @frappe.whitelist()
 def get_html_and_style(
