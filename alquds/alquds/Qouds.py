@@ -302,6 +302,50 @@ def get_html_and_style(
 	return {"html": html, "style": get_print_style(style=style, print_format=print_format)}
 
 
+
+@frappe.whitelist()
+def get_html_and_style_pallet(
+	doc,
+	name=None,
+	print_format=None,
+	meta=None,
+	no_letterhead=None,
+	letterhead=None,
+	trigger_print=False,
+	style=None,
+	settings=None,
+	templates=None,
+):
+	"""Returns `html` and `style` of print format, used in PDF etc"""
+
+	if isinstance(doc, str) and isinstance(name, str):
+		doct = frappe.get_doc(doc, name)
+
+	# if isinstance(doc, str):
+	# 	doc = frappe.get_doc(json.loads(doc))
+
+	# print_format = get_print_format_doc(print_format, meta=meta or frappe.get_meta(doct.doctype))
+	meta = frappe.get_meta(doct.doctype)
+	print_format = frappe.get_doc("Print Format", doct.pallet_print_format)
+	set_link_titles(doct)
+
+	try:
+		html = get_rendered_template(
+			doct,
+			name=name,
+			print_format=print_format,
+			meta=meta,
+			no_letterhead=no_letterhead,
+			letterhead=letterhead,
+			trigger_print=trigger_print,
+			settings=frappe.parse_json(settings),
+		)
+	except frappe.TemplateNotFoundError:
+		frappe.clear_last_message()
+		html = None
+
+	return {"html": html, "style": get_print_style(style=style, print_format=print_format)}
+
 # @frappe.whitelist()
 # def get_rendered_raw_commands(doc, name=None, print_format=None, meta=None, lang=None, ):
 # 	"""Returns Rendered Raw Commands of print format, used to send directly to printer"""
