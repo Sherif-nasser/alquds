@@ -148,8 +148,19 @@ frappe.ui.form.on("Product Order Details", {
     ref:function(frm,cdt,cdn){
       var d= locals[cdt][cdn]
       console.log(d.ref);
+
+      // frappe.call({
+      //   async: false,
+      //   method: "alquds.alqudsQueries.get_item_printformat",
+      //   args: {
+      //     serial_number:
+      //   },
+      //   callback: function (r) {
+        
+      //   },
+      // });
+
       $.each(frm.doc.product_details || [], function(i, row) {
-          // console.log(row.idx);
           if(row.idx > (row.idx)-1){
             all_rows= row.idx;
           }
