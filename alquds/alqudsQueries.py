@@ -39,4 +39,12 @@ def get_data_sheet(Thickness):
         }
 
     return sheetObj
+
+@frappe.whitelist()
+def get_item_printformat(item_serial):
+    defaultPrintFormat = frappe.db.get_value("Item",
+        filters={"item_name": item_serial},
+        fieldname=['default_print_format'])
+    return defaultPrintFormat
+				
    
