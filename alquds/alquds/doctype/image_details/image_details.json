@@ -1,51 +1,50 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2023-01-19 15:18:29.467338",
+ "creation": "2023-01-31 15:09:59.550766",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "thickness",
-  "s",
-  "cl",
-  "fe",
-  "life_time"
+  "film_width",
+  "roll_width",
+  "image",
+  "amended_from"
  ],
  "fields": [
   {
-   "fieldname": "s",
+   "fieldname": "film_width",
    "fieldtype": "Data",
-   "label": "S"
+   "label": "Film Width "
   },
   {
-   "fieldname": "cl",
+   "fieldname": "roll_width",
    "fieldtype": "Data",
-   "label": "CL"
+   "label": "Roll Width"
   },
   {
-   "fieldname": "fe",
-   "fieldtype": "Data",
-   "label": "Fe"
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
   },
   {
-   "fieldname": "life_time",
-   "fieldtype": "Data",
-   "label": "Life time"
-  },
-  {
-   "fieldname": "thickness",
-   "fieldtype": "Data",
-   "label": "Thickness"
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Image details",
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2023-01-31 16:37:25.191101",
+ "modified": "2023-01-31 15:15:01.979871",
  "modified_by": "Administrator",
  "module": "Alquds",
- "name": "Roll Details",
+ "name": "Image details",
  "owner": "Administrator",
  "permissions": [
   {
