@@ -44,7 +44,9 @@ def get_data_sheet(Thickness):
 def get_item_printformat(item_serial):
     defaultPrintFormat = frappe.db.get_value("Item",
         filters={"item_name": item_serial},
-        fieldname=['default_print_format'])
+        fieldname=['default_print_format','default_pallet_print_format'])
     return defaultPrintFormat
+
+
 				
    
