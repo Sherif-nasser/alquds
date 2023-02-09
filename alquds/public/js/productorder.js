@@ -135,149 +135,92 @@ frappe.ui.form.on("Product Order", {
         });
     },
     generate: function(frm) {
-
+        //splittes the ref to get the item_serial then pass it to the backend function
+        // to get the default print format and pallet print format of the item
         var ref = "";
         var item_serial = "";
-
+    
         $.each(frm.doc.product_details || [], function(i, row) {
             ref = frm.doc.product_details[0].ref
-            console.log(ref);
+ 
         });
 
         if (ref != "") {
             item_serial = ref.split('-')[0];
         }
-
+       
+        
         frappe.call({
             method: "alquds.alqudsQueries.get_item_printformat",
             args: {
                 item_serial: item_serial
             },
             callback: function(r) {
-                console.log(r.message);
-                frm.doc.print_format = r.message;
+                // console.log(r.message);
+                frm.doc.print_format = r.message[0];
+                frm.doc.pallet_print_format = r.message[1];
                 frm.refresh_field("print_format");
-            },
-            print_selected_pallet: function(frm) {
-                // stop here
-                is_doc_instantiated(frm);
-                if (!frm.doc.docstatus)
-                    frm.doc.product_details.forEach((product) => {
-                        frappe.model.set_value(
-                            "Product Order Details",
-                            product.name,
-                            "item_status",
-                            "Waiting Quality"
-                        );
-                    });
+                frm.refresh_field("pallet_print_format");
+            }
+        });
 
-                let d = new frappe.ui.Dialog({
-                    title: "Enter Pallet Number",
-                    fields: [{
-                        label: "Pallet No",
-                        fieldname: "pallet_no",
-                        fieldtype: "Data"
-                    }, ],
-                    primary_action_label: "Print",
-                    primary_action(values) {
-                        frm.doc.selected_pallet_no = values.sap_pallet_no;
-                        print_selected_doc(frm);
+    },
+    print_selected_pallet: function(frm) {
+        // stop here
+        is_doc_instantiated(frm);
+        if (!frm.doc.docstatus)
+            frm.doc.product_details.forEach((product) => {
+                frappe.model.set_value(
+                    "Product Order Details",
+                    product.name,
+                    "item_status",
+                    "Waiting Quality"
+                );
+            });
 
-                        d.hide();
-                    },
-                });
+        let d = new frappe.ui.Dialog({
+            title: "Enter Pallet Number",
+            fields: [{
+                label: "Pallet No",
+                fieldname: "pallet_no",
+                fieldtype: "Data"
+            }, ],
+            primary_action_label: "Print",
+            primary_action(values) {
+                frm.doc.selected_pallet_no = values.sap_pallet_no;
+                print_selected_doc(frm);
 
-                d.show();
-
-                function print_selected_doc(frm) {
-                    frm.doc.selected_product = [];
-                    let i = 1;
-                    frm.doc.product_details.forEach((product) => {
-                        if (product.sap_pallet_no == frm.doc.selected_pallet_no) {
-                            frm.doc.selected_product.push({
-                                ...product,
-                                idx: i
-                            });
-                            i += 1;
-                        }
-                    });
-                    frm.print_doc();
-
-                    setTimeout(function() {
-                        try {
-                            var pallet_print_format = frm.doc.pallet_print_format;
-                            frappe.call({
-                                method: "alquds.alquds.Qouds.get_html_and_style_pallet",
-                                args: {
-                                    print_format: pallet_print_format,
-                                    doc: frm.doc.doctype,
-                                    name: frm.doc.name,
-                                },
-                                callback: function(r) {
-                                    console.log(r.message);
-                                    var style = r.message.style;
-                                    var html = r.message.html;
-                                    var newWindow = window.open();
-                                    newWindow.document.write(
-                                        `
-                        <!DOCTYPE html>
-          <html lang="en" dir="ltr">
-          <head>
-              <meta charset="utf-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Print it</title>
-              <meta name="generator" content="frappe">
-              
-            <link rel="stylesheet" href="public/dist/print.bundle.CBC37ASE.css">
-              
-                  <style>\
-              ` +
-                                        style +
-                                        `
-                  </style>
-              
-          </head>
-          <body>
-            
-              <div class="print-format-gutter">
-                  <div class="print-format">
-              ` +
-                                        html +
-                                        `
-                  </div>
-              </div>
-              <script>
-                  document.addEventListener('DOMContentLoaded', () => {
-                      const page_div = document.querySelector('.page-break');
-          
-                      page_div.style.display = 'flex';
-                      page_div.style.flexDirection = 'column';
-          
-                      const footer_html = document.getElementById('footer-html');
-                      footer_html.classList.add('hidden-pdf');
-                      footer_html.classList.remove('visible-pdf');
-                      footer_html.style.order = 1;
-                      footer_html.style.marginTop = '20px';
-                  });
-              </script>
-          </body>
-          </html>
-          
-                          `
-
-                                    );
-                                    // newWindow.document.write(r.message.html);
-                                    newWindow.print();
-                                },
-                            });
-                        } catch (e) {
-                            msgprint(e.message)
-                        }
-                    }, 900);
-                }
+                d.hide();
             },
         });
 
+        d.show();
+
+        function print_selected_doc(frm) {
+            frm.doc.selected_product = [];
+            let i = 1;
+            frm.doc.product_details.forEach((product) => {
+                if (product.sap_pallet_no == frm.doc.selected_pallet_no) {
+                    frm.doc.selected_product.push({
+                        ...product,
+                        idx: i
+                    });
+                    i += 1;
+                }
+            });
+            // frm.print_doc();
+            
+            frappe.utils.print(
+                frm.doctype,
+                frm.docname,
+                frm.doc.pallet_print_format,
+                frm.doc.letter_head,
+                frm.doc.language || frappe.boot.lang
+            );
+            
+            
+
+        }
     },
 
 });
@@ -289,29 +232,23 @@ frappe.ui.form.on("Product Order", {
 /// Product Order Details  /// 
 
 frappe.ui.form.on("Product Order Details", {
-    ref: function(frm, cdt, cdn) {
+
+    gross_weight: function(frm,cdt,cdn) {
         var d = locals[cdt][cdn]
+        var totalQTY = frm.doc.quantity;
+        var totalGrossWeight = 0.0;
+
         $.each(frm.doc.product_details || [], function(i, row) {
+            if (row.gross_weight) {
+                totalGrossWeight += flt(row.gross_weight);
+                totalGross = totalGrossWeight;
+            }
             if (row.idx > (row.idx) - 1) {
                 all_rows = row.idx;
             }
         });
         remaining_items = all_rows - d.idx;
         remaining_Entered_items = d.idx;
-        frm.trigger("remaining_item_serials");
-        frm.trigger("entered_item_serials");
-    },
-    gross_weight: function(frm) {
-        var totalQTY = frm.doc.quantity;
-        console.log(totalQTY);
-        console.log(frm.doc.weight_type);
-        var totalGrossWeight = 0.0;
-        $.each(frm.doc.product_details || [], function(i, row) {
-            if (row.gross_weight) {
-                totalGrossWeight += flt(row.gross_weight);
-                totalGross = totalGrossWeight;
-            }
-        });
 
         if ((totalQTY >= totalGross) && (frm.doc.weight_type == "وزن قائم")) {
             console.log(frm.doc.weight_type);
@@ -320,6 +257,8 @@ frappe.ui.form.on("Product Order Details", {
         }
 
         frm.trigger("gross_weight_sum");
+        frm.trigger("remaining_item_serials");
+        frm.trigger("entered_item_serials");
 
     },
     net_weight: function(frm) {
@@ -408,86 +347,96 @@ frappe.ui.form.on("Product Order Details", {
             // refresh_field("selected_row");
             frm.save();
             // frm.doc.product_details[row-1].item_status = "Waiting Quality"
-            frm.print_doc();
+            // frm.print_doc();
+            
+            frappe.utils.print(
+                frm.doctype,
+                frm.docname,
+                frm.doc.print_format,
+                frm.doc.letter_head,
+                frm.doc.language || frappe.boot.lang
+            );
+            
+           
 
             //This part is retaled to AlQouds application
-            setTimeout(function() {
-                try {
-                    frappe.call({
-                        method: "alquds.alquds.Qouds.get_html_and_style",
-                        args: {
-                            doc: frm.doc.doctype,
-                            name: frm.doc.name,
-                        },
-                        callback: function(r) {
-                            // console.log(r.message);
-                            var style = r.message.style;
-                            var html = r.message.html;
-                            var newWindow = window.open();
-                            newWindow.document.write(
-                                `
-                  <!DOCTYPE html>
-    <html lang="en" dir="ltr">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Print it</title>
-        <meta name="generator" content="frappe">
+    //         setTimeout(function() {
+    //             try {
+    //                 frappe.call({
+    //                     method: "alquds.alquds.Qouds.get_html_and_style",
+    //                     args: {
+    //                         doc: frm.doc.doctype,
+    //                         name: frm.doc.name,
+    //                     },
+    //                     callback: function(r) {
+    //                         // console.log(r.message);
+    //                         var style = r.message.style;
+    //                         var html = r.message.html;
+    //                         var newWindow = window.open();
+    //                         newWindow.document.write(
+    //                             `
+    //               <!DOCTYPE html>
+    // <html lang="en" dir="ltr">
+    // <head>
+    //     <meta charset="utf-8">
+    //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    //     <title>Print it</title>
+    //     <meta name="generator" content="frappe">
         
-      <link rel="stylesheet" href="public/dist/print.bundle.CBC37ASE.css">
+    //   <link rel="stylesheet" href="public/dist/print.bundle.CBC37ASE.css">
         
-            <style>\
-        ` +
-                                style +
-                                `
-            </style>
+    //         <style>\
+    //     ` +
+    //                             style +
+    //                             `
+    //         </style>
         
-    </head>
-    <body>
-        <div class="action-banner print-hide">
-            <a class="p-2" onclick="window.print();">
-                Print
-            </a>
-            <a class="p-2"
-                href="/api/method/frappe.utils.print_format.download_pdf?doctype={{doctype}}&name={{name}}&key={{key}}">
-                Get PDF
-            </a>
-        </div>
-        <div class="print-format-gutter">
-            <div class="print-format">
-        ` +
-                                html +
-                                `
-            </div>
-        </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const page_div = document.querySelector('.page-break');
+    // </head>
+    // <body>
+    //     <div class="action-banner print-hide">
+    //         <a class="p-2" onclick="window.print();">
+    //             Print
+    //         </a>
+    //         <a class="p-2"
+    //             href="/api/method/frappe.utils.print_format.download_pdf?doctype={{doctype}}&name={{name}}&key={{key}}">
+    //             Get PDF
+    //         </a>
+    //     </div>
+    //     <div class="print-format-gutter">
+    //         <div class="print-format">
+    //     ` +
+    //                             html +
+    //                             `
+    //         </div>
+    //     </div>
+    //     <script>
+    //         document.addEventListener('DOMContentLoaded', () => {
+    //             const page_div = document.querySelector('.page-break');
     
-                page_div.style.display = 'flex';
-                page_div.style.flexDirection = 'column';
+    //             page_div.style.display = 'flex';
+    //             page_div.style.flexDirection = 'column';
     
-                const footer_html = document.getElementById('footer-html');
-                footer_html.classList.add('hidden-pdf');
-                footer_html.classList.remove('visible-pdf');
-                footer_html.style.order = 1;
-                footer_html.style.marginTop = '20px';
-            });
-        </script>
-    </body>
-    </html>
+    //             const footer_html = document.getElementById('footer-html');
+    //             footer_html.classList.add('hidden-pdf');
+    //             footer_html.classList.remove('visible-pdf');
+    //             footer_html.style.order = 1;
+    //             footer_html.style.marginTop = '20px';
+    //         });
+    //     </script>
+    // </body>
+    // </html>
     
-                    `
+    //                 `
 
-                            );
-                            // newWindow.document.write(r.message.html);
-                            newWindow.print();
-                        },
-                    });
-                } catch (e) {
-                    msgprint(e.message)
-                }
-            }, 900);
+    //                         );
+    //                         // newWindow.document.write(r.message.html);
+    //                         newWindow.print();
+    //                     },
+    //                 });
+    //             } catch (e) {
+    //                 msgprint(e.message)
+    //             }
+    //         }, 900);
 
             //app/print/Product Order/PO01066
             //printview?doctype=Product%20Order&name=PO01066&trigger_print=1&format=Standard&no_letterhead=1&letterhead=No%20Letterhead&settings=%7B%7D&_lang=en
