@@ -5,38 +5,46 @@ var all_rows = 0;
 var remaining_items = 0;
 var remaining_Entered_items = 0;
 
-
+var serials = [];
 /// Product Order  /// 
 frappe.ui.form.on("Product Order", {
     onload: function(frm) {
-        if (frm.doc.thickness) {
-            frappe.call({
-                async: false,
-                method: "alquds.alqudsQueries.get_data_sheet",
-                args: {
-                    Thickness: frm.doc.thickness,
-                },
-                callback: function(r) {
-                    if (r.message) {
-                        frm.selected_doc.s = r.message.S;
-                        frm.selected_doc.cl = r.message.CL
-                        frm.selected_doc.fe = r.message.Fe
-                        frm.selected_doc.life_time = r.message.LifeTime
-                        frm.set_df_property("s", "hidden", 0);
-                        frm.set_df_property("cl", "hidden", 0);
-                        frm.set_df_property("fe", "hidden", 0);
-                        frm.set_df_property("life_time", "hidden", 0);
-                    } else {
-                        console.log("Thickness value doesn't exist in Roll Details Doctype");
-                        frm.set_df_property("s", "hidden", 1);
-                        frm.set_df_property("cl", "hidden", 1);
-                        frm.set_df_property("fe", "hidden", 1);
-                        frm.set_df_property("life_time", "hidden", 1);
-                    }
-                },
-            });
-        }
-        console.log(frm.doc.thickness);
+        
+        
+        // frappe.call({
+        //     method: "alquds.alqudsQueries.default_print_format",
+        //     callback:function(r){
+        //         console.log(r.message);
+        //     }
+        // })
+        // if (frm.doc.thickness) {
+        //     frappe.call({
+        //         async: false,
+        //         method: "alquds.alqudsQueries.get_data_sheet",
+        //         args: {
+        //             Thickness: frm.doc.thickness,
+        //         },
+        //         callback: function(r) {
+        //             if (r.message) {
+        //                 frm.selected_doc.s = r.message.S;
+        //                 frm.selected_doc.cl = r.message.CL
+        //                 frm.selected_doc.fe = r.message.Fe
+        //                 frm.selected_doc.life_time = r.message.LifeTime
+        //                 frm.set_df_property("s", "hidden", 0);
+        //                 frm.set_df_property("cl", "hidden", 0);
+        //                 frm.set_df_property("fe", "hidden", 0);
+        //                 frm.set_df_property("life_time", "hidden", 0);
+        //             } else {
+        //                 console.log("Thickness value doesn't exist in Roll Details Doctype");
+        //                 frm.set_df_property("s", "hidden", 1);
+        //                 frm.set_df_property("cl", "hidden", 1);
+        //                 frm.set_df_property("fe", "hidden", 1);
+        //                 frm.set_df_property("life_time", "hidden", 1);
+        //             }
+        //         },
+        //     });
+        // }
+        // console.log(frm.doc.thickness);
     },
     close_po: function(frm) {
         frm.set_value("order_status", "Finished");
@@ -74,13 +82,24 @@ frappe.ui.form.on("Product Order", {
                     filmWidth: d.film_width
                 },
                 callback: function(r) {
-                    console.log(r.message);
-                    frm.selected_doc.sticker = r.message;
-                    frm.refresh_field("sticker");
-                    frm.refresh_field("image");
+                    var images = []
+                    var stickers = r.message;
+                    stickers.forEach((obj)=>{
+                        images.push(obj.image);
+                    })
+                    set_field_options("stickers", images)
+                    // frm.selected_doc.sticker = r.message;
+                    
                 },
             });
         }
+        frm.refresh_field("image");
+    },
+    stickers:function(frm,cdt,cdn){
+        var d =locals[cdt][cdn]
+        d.sticker = d.stickers;
+        frm.refresh_field("sticker");
+        frm.refresh_field("image");
     },
     sticker_roll_width: function(frm, cdt, cdn) {
         var d = locals[cdt][cdn];
@@ -93,47 +112,52 @@ frappe.ui.form.on("Product Order", {
                     filmWidth: d.film_width
                 },
                 callback: function(r) {
-                    console.log(r.message);
-                    frm.selected_doc.sticker = r.message;
-                    frm.refresh_field("sticker");
-                    frm.refresh_field("image");
+                    var images = []
+                    var stickers = r.message;
+                    stickers.forEach((obj)=>{
+                        images.push(obj.image);
+                    })
+                    set_field_options("stickers", images)
+                    // frm.selected_doc.sticker = r.message;
+                    
                 },
             });
         }
+        frm.refresh_field("image");
     },
-    thickness: function(frm, cdt, cdn) {
-        var d = locals[cdt][cdn];
-        frappe.call({
-            async: false,
-            method: "alquds.alqudsQueries.get_data_sheet",
-            args: {
-                Thickness: d.thickness,
-            },
-            callback: function(r) {
-                if (r.message) {
-                    console.log("sherif Nasser");
-                    frm.selected_doc.s = r.message.S;
-                    frm.selected_doc.cl = r.message.CL
-                    frm.selected_doc.fe = r.message.Fe
-                    frm.selected_doc.life_time = r.message.LifeTime
-                    frm.refresh_field("s");
-                    frm.refresh_field("cl");
-                    frm.refresh_field("fe");
-                    frm.refresh_field("life_time");
-                    frm.set_df_property("s", "hidden", 0);
-                    frm.set_df_property("cl", "hidden", 0);
-                    frm.set_df_property("fe", "hidden", 0);
-                    frm.set_df_property("life_time", "hidden", 0);
-                } else {
-                    console.log("Thickness value doesn't exist in Roll Details Doctype");
-                    frm.set_df_property("s", "hidden", 1);
-                    frm.set_df_property("cl", "hidden", 1);
-                    frm.set_df_property("fe", "hidden", 1);
-                    frm.set_df_property("life_time", "hidden", 1);
-                }
-            },
-        });
-    },
+    // thickness: function(frm, cdt, cdn) {
+    //     var d = locals[cdt][cdn];
+    //     frappe.call({
+    //         async: false,
+    //         method: "alquds.alqudsQueries.get_data_sheet",
+    //         args: {
+    //             Thickness: d.thickness,
+    //         },
+    //         callback: function(r) {
+    //             if (r.message) {
+    //                 console.log("sherif Nasser");
+    //                 frm.selected_doc.s = r.message.S;
+    //                 frm.selected_doc.cl = r.message.CL
+    //                 frm.selected_doc.fe = r.message.Fe
+    //                 frm.selected_doc.life_time = r.message.LifeTime
+    //                 frm.refresh_field("s");
+    //                 frm.refresh_field("cl");
+    //                 frm.refresh_field("fe");
+    //                 frm.refresh_field("life_time");
+    //                 frm.set_df_property("s", "hidden", 0);
+    //                 frm.set_df_property("cl", "hidden", 0);
+    //                 frm.set_df_property("fe", "hidden", 0);
+    //                 frm.set_df_property("life_time", "hidden", 0);
+    //             } else {
+    //                 console.log("Thickness value doesn't exist in Roll Details Doctype");
+    //                 frm.set_df_property("s", "hidden", 1);
+    //                 frm.set_df_property("cl", "hidden", 1);
+    //                 frm.set_df_property("fe", "hidden", 1);
+    //                 frm.set_df_property("life_time", "hidden", 1);
+    //             }
+    //         },
+    //     });
+    // },
     generate: function(frm) {
         //splittes the ref to get the item_serial then pass it to the backend function
         // to get the default print format and pallet print format of the item
@@ -187,20 +211,36 @@ frappe.ui.form.on("Product Order", {
             }, ],
             primary_action_label: "Print",
             primary_action(values) {
-                frm.doc.selected_pallet_no = values.sap_pallet_no;
-                print_selected_doc(frm);
-
+                var pallets = "";
+                if(values.pallet_no.includes(',')){
+                     pallets = values.pallet_no.split(',');
+                     pallets.forEach((palletNo) =>{
+                        print_selected_doc(frm,palletNo);
+                    })
+                
+                }else{
+                    pallets = values.pallet_no;
+                    print_selected_doc(frm,pallets);
+                
+                }
+                
+                // frm.doc.selected_pallet_no = values.sap_pallet_no;
+                
                 d.hide();
+                // frm.print_doc();
+                
             },
         });
 
         d.show();
 
-        function print_selected_doc(frm) {
-            frm.doc.selected_product = [];
+        function print_selected_doc(frm,palletref) {
+           
+           
+            // frm.doc.selected_product = [];
             let i = 1;
             frm.doc.product_details.forEach((product) => {
-                if (product.sap_pallet_no == frm.doc.selected_pallet_no) {
+                if (product.pallet_no == palletref) {
                     frm.doc.selected_product.push({
                         ...product,
                         idx: i
@@ -208,17 +248,13 @@ frappe.ui.form.on("Product Order", {
                     i += 1;
                 }
             });
-            // frm.print_doc();
-            
-            frappe.utils.print(
-                frm.doctype,
-                frm.docname,
-                frm.doc.pallet_print_format,
-                frm.doc.letter_head,
-                frm.doc.language || frappe.boot.lang
-            );
-            
-            
+            frm.refresh_field("selected_product");
+            if(frm.doc.pallet_print_format){
+                frappe.get_meta("Product Order").default_print_format = frm.doc.pallet_print_format;
+            }
+            console.log(frappe.get_meta("Product Order"));
+            frm.print_doc();
+
 
         }
     },
