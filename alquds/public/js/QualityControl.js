@@ -1,23 +1,48 @@
 
 
 /// Quality Control  /// 
-
 frappe.ui.form.on('Quality Control', {
-    onload:function(frm){
-      frm.fields_dict["product_items"].grid.get_field("qt_inspection").get_query =
+    onload:function(frm,cdt,cdn){
+      frm.fields_dict["product_items"].grid.get_field("qt_inspection_yard").get_query =
       function (doc, cdt, cdn) {
         var child = locals[cdt][cdn];
         return {
-          filters: [["sap_serial_no", "=", child["sap_serial_number"]]],
+          filters: [
+            ["item_code", "=", child["item_serial"]],
+            ["type", "=", "صالة"],
+            ["docstatus", "=", "1"]
+          
+          ],
         };
       };
-        console.log("inside the parent");
+
+      frm.fields_dict["product_items"].grid.get_field("qt_inspection_lab").get_query =
+      function (doc, cdt, cdn) {
+        var child = locals[cdt][cdn];
+        return {
+          filters: [
+            ["item_code", "=", child["item_serial"]],
+            ["type", "=", "معملي"],
+            ["docstatus", "=", "1"]
+          
+          ],
+        };
+      };
+      
+        // frm.fields_dict["product_items"].grid.get_field("qt_inspection").get_query =
+        // function (doc, cdt, cdn) {
+        //   var child = locals[cdt][cdn];
+        //   return {
+        //     filters: [["sap_serial_number", "=", child["sap_serial_no"]]],
+        //   };
+        // };
+      
     },
     change_item_status: function (frm,cdt,cdn) {
       var productItems = locals[cdt][cdn].product_items;
         for(var i=0;i<productItems.length;i++){
           if(productItems[i].qt_status_yard ==  productItems[i].qt_status_lab){
-            productItems[i].final_status =productItems[i].qt_status_yard;
+            productItems[i].final_status = productItems[i].qt_status_yard;
             console.log(productItems[i].final_status);
           }
 
@@ -69,6 +94,7 @@ frappe.ui.form.on('Quality Control Details', {
 
   // set the qt lab status
   qt_inspection_lab: function (frm,cdt,cdn) {
+    
     frm.refresh_field('product_items');
     if(frm.selected_doc.qt_status_lab == "مطابق" && frm.selected_doc.qt_status_yard == "مطابق"){
       console.log(frm.selected_doc.qt_status_yard + "from the edits");

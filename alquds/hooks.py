@@ -33,7 +33,8 @@ app_license = "MIT"
 doctype_js = {
     "Quality Control" : "public/js/QualityControl.js",
     "Product Order" : "public/js/productorder.js",
-    "Quality Inspection" : "public/js/qualityInspection.js"
+    "Quality Inspection" : "public/js/qualityInspection.js",
+    "Employee Checkin" : "public/js/EmployeeCheckIn.js"
     }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -101,7 +102,8 @@ doctype_js = {
 
 override_doctype_class = {
 	# "ToDo": "custom_app.overrides.CustomToDo"
-    "Attendance Request":"alquds.attendanceRequestOverridden.modefiedClass"
+    "Attendance Request":"alquds.attendanceRequestOverridden.modefiedClass",
+    "Quality Inspection":"alquds.qt_inspectionOverridden.submitMethodClass"
 }
 
 # Document Events

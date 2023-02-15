@@ -6,12 +6,19 @@ var realStatus_Quality_Inspection = "";
 
 frappe.ui.form.on("Quality Inspection", {
     onload_post_render: function (frm) {
+      
       if (frm.is_new() && frappe.get_prev_route()[1] == "Quality Control") {
+        var roll_number = (frappe._from_link.doc.sap_serial_no).split('/')[1];
+        var pallet_number = (frappe._from_link.doc.sap_pallet_no).split('/')[1];
+        var production_number = (frappe._from_link.doc.sap_serial_no).split('/')[0];
         try {
           frm.set_value("item_code", frappe._from_link.doc.item_serial);
           frm.set_value("reference_type", "Product Order");
           frm.set_value("reference_name", frappe._from_link.doc.product_name);
           frm.set_value("sap_serial_number", frappe._from_link.doc.sap_serial_no);
+          frm.set_value("roll_no", roll_number);
+          frm.set_value("pallet_no", pallet_number);
+          frm.set_value("production_no", production_number);
         } catch (e) {}
       }
 
@@ -38,21 +45,25 @@ frappe.ui.form.on("Quality Inspection", {
         }
       }
     },
-    before_save: function (frm) {
-      frappe.set_route("/app/quality-control");
-    },
+    // before_save: function (frm) {
+      
+    //   frappe.set_route("/app/quality-control");
+    // },
     status:function(frm){
       realStatus_Quality_Inspection = frm.selected_doc.status;
     },
     after_save: function(frm){
-      
+      frappe.set_route("/app/quality-inspection/"+frm.doc.name);
       if(frm.selected_doc.status == "Accepted"){
         frm.selected_doc.status = realStatus_Quality_Inspection;
-        console.log(frm.selected_doc.status)
+        // console.log(frm.selected_doc.status)
       }else{
         frm.selected_doc.status = realStatus_Quality_Inspection;
       }
       // frm.selected_doc.status = realStatus_Quality_Inspection;
+    },
+    on_submit:function(frm){
+      frappe.set_route("/app/quality-control");
     },
     type:function(frm,cdt,cdn){
       var d = locals[cdt][cdn];
