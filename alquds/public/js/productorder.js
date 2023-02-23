@@ -3,6 +3,15 @@
 frappe.require(["assets/sap/js/mqtt.min.js"]);
 frappe.provide("frappe.meta");
 
+var totalGross = 0.0;
+var totalNet = 0.0;
+var remaining_reqd_weight = 0.0;
+var all_rows = 0;
+var remaining_items = 0;
+var remaining_Entered_items = 0;
+
+var serials = [];
+
 $.extend(frappe.meta, {
   get_print_formats: function (doctype) {
     var print_format_list = ["Standard"];
@@ -76,10 +85,89 @@ frappe.ui.form.on("Product Order", {
     });
     refresh_field("product_details");
   },
-
+  close_po: function(frm) {
+    frm.set_value("order_status", "Finished");
+    refresh_field("order_status");
+    console.log(frm.selected_doc.order_status);
+},
+gross_weight_sum: function(frm, cdt, cdn) {
+    frm.set_value("gross_weight_sum", totalGross);
+    frm.refresh_field("gross_weight_sum");
+},
+net_weight_sum: function(frm) {
+    frm.set_value("net_weight_sum", totalNet);
+    frm.refresh_field("net_weight_sum");
+},
+remaining_from_qt: function(frm) {
+    frm.set_value("remaining_from_qt", remaining_reqd_weight.toFixed(3));
+    frm.refresh_field("remaining_from_qt");
+},
+remaining_item_serials: function(frm) {
+    frm.set_value("remaining_item_serials", remaining_items);
+    frm.refresh_field("remaining_item_serials");
+},
+entered_item_serials: function(frm) {
+    frm.set_value("entered_item_serials", remaining_Entered_items);
+    frm.refresh_field("entered_item_serials");
+},
+film_width: function(frm, cdt, cdn) {
+    var d = locals[cdt][cdn];
+    if (d.sticker_roll_width) {
+        frappe.call({
+            async: false,
+            method: "alquds.alqudsQueries.get_Sticker",
+            args: {
+                rollWidth: d.sticker_roll_width,
+                filmWidth: d.film_width
+            },
+            callback: function(r) {
+                var images = []
+                var stickers = r.message;
+                stickers.forEach((obj)=>{
+                    images.push(obj.image);
+                })
+                set_field_options("stickers", images)
+                // frm.selected_doc.sticker = r.message;
+                
+            },
+        });
+    }
+    frm.refresh_field("image");
+},
+stickers:function(frm,cdt,cdn){
+    var d =locals[cdt][cdn]
+    d.sticker = d.stickers;
+    frm.refresh_field("sticker");
+    frm.refresh_field("image");
+},
+sticker_roll_width: function(frm, cdt, cdn) {
+    var d = locals[cdt][cdn];
+    if (d.film_width) {
+        frappe.call({
+            async: false,
+            method: "alquds.alqudsQueries.get_Sticker",
+            args: {
+                rollWidth: d.sticker_roll_width,
+                filmWidth: d.film_width
+            },
+            callback: function(r) {
+                var images = []
+                var stickers = r.message;
+                stickers.forEach((obj)=>{
+                    images.push(obj.image);
+                })
+                set_field_options("stickers", images)
+                // frm.selected_doc.sticker = r.message;
+                
+            },
+        });
+    }
+    frm.refresh_field("image");
+},
   generate: function (frm) {
     let items = parseInt(frm.doc.rolls_no);
     let index;
+    // var ref = "";
     if (frm.doc.product_details) index = frm.doc.product_details.length;
     else index = 0;
 
@@ -92,6 +180,32 @@ frappe.ui.form.on("Product Order", {
     }
     frm.set_value("order_status", "In Progress");
     refresh_field("product_details");
+    console.log(frm.doc.item_serial);
+        // var item_serial = "";
+    
+        // $.each(frm.doc.product_details || [], function(i, row) {
+        //     ref = frm.doc.product_details[0].ref
+ 
+        // });
+
+        // if (ref != "") {
+        //     item_serial = ref.split('-')[0];
+        // }
+       
+        
+        frappe.call({
+            method: "alquds.alqudsQueries.get_item_printformat",
+            args: {
+                item_serial: frm.doc.item_serial
+            },
+            callback: function(r) {
+                // console.log(r.message);
+                frm.doc.print_format = r.message[0];
+                frm.doc.pallet_print_format = r.message[1];
+                frm.refresh_field("print_format");
+                frm.refresh_field("pallet_print_format");
+            }
+        });
   },
   update_item_waiting_quality: function (frm) {
     let items = frm.get_selected().product_details;
@@ -233,6 +347,55 @@ frappe.ui.form.on("Product Order", {
 });
 
 frappe.ui.form.on("Product Order Details", {
+    gross_weight: function(frm,cdt,cdn) {
+        var d = locals[cdt][cdn]
+        var totalQTY = frm.doc.quantity;
+        var totalGrossWeight = 0.0;
+
+        $.each(frm.doc.product_details || [], function(i, row) {
+            if (row.gross_weight) {
+                totalGrossWeight += flt(row.gross_weight);
+                totalGross = totalGrossWeight;
+            }
+            if (row.idx > (row.idx) - 1) {
+                all_rows = row.idx;
+            }
+        });
+        remaining_items = all_rows - d.idx;
+        remaining_Entered_items = d.idx;
+
+        if ((totalQTY >= totalGross) && (frm.doc.weight_type == "ÙˆØ²Ù† Ù‚Ø§Ø¦Ù…")) {
+            console.log(frm.doc.weight_type);
+            remaining_reqd_weight = totalQTY - totalGross
+            frm.trigger("remaining_from_qt");
+        }
+
+        frm.trigger("gross_weight_sum");
+        frm.trigger("remaining_item_serials");
+        frm.trigger("entered_item_serials");
+
+    },
+    net_weight: function(frm) {
+        var totalQTY = frm.doc.quantity;
+        console.log(totalQTY);
+        console.log(frm.doc.weight_type);
+        var totalNetWeight = 0.0;
+        $.each(frm.doc.product_details || [], function(i, row) {
+            if (row.net_weight) {
+                totalNetWeight += flt(row.net_weight);
+                totalNet = totalNetWeight;
+            }
+        });
+
+        if ((totalQTY >= totalNet) && (frm.doc.weight_type == "ÙˆØ²Ù† ØµØ§ÙÙ‰")) {
+
+            remaining_reqd_weight = totalQTY - totalNet
+            frm.trigger("remaining_from_qt");
+            console.log("inside net weight ");
+        }
+        frm.trigger("net_weight_sum");
+
+    },
   measure: function (frm) {
     const options = {
       clean: true, // retain session
@@ -328,8 +491,6 @@ frappe.ui.form.on("Product Order Details", {
     printQr(frm);
     }  
 },
-
-
 
   qt_inspection: function (frm) {
     frappe.call({
