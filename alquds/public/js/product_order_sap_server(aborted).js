@@ -31,13 +31,6 @@ $.extend(frappe.meta, {
         .print_format;
     if (cur_print_format) {
       return [cur_print_format];
-      // default_print_format = cur_print_format;
-      // console.log(default_print_format)
-      // var index = print_format_list.indexOf(default_print_format);
-      // print_format_list.splice(index, 1).sort();
-      // print_format_list.unshift(default_print_format);
-      // console.log(print_format_list)
-      // return print_format_list;
     }
     return print_format_list;
   },
@@ -163,73 +156,46 @@ frappe.ui.form.on("Product Order", {
     });
     frm.save().then(() => frm.trigger("onload"));
   },
-  print_selected_pallet: function (frm) {
-    // stop here
-    if(frm.doc.pallet_print_format){
-        frappe.get_meta("Product Order").default_print_format = frm.doc.pallet_print_format;
-    }
-    console.log(frappe.get_meta("Product Order"));
-    console.log(frappe.get_meta("Product Order").default_print_format);
+//   print_selected_pallet: function (frm) {
+//     // stop here
+//     is_doc_instantiated(frm);
+//     if (!frm.doc.docstatus)
+//       frm.doc.product_details.forEach((product) => {
+//         frappe.model.set_value(
+//           "Product Order Details",
+//           product.name,
+//           "item_status",
+//           "Waiting Quality"
+//         );
+//       });
 
-    is_doc_instantiated(frm);
-    console.log(frm.doc.docstatus);
-    if (!frm.doc.docstatus)
-      frm.doc.product_details.forEach((product) => {
-        frappe.model.set_value(
-          "Product Order Details",
-          product.name,
-          "item_status",
-          "Waiting Quality"
-        );
-      });
+//     let d = new frappe.ui.Dialog({
+//       title: "Enter Pallet Number",
+//       fields: [
+//         { label: "Pallet No", fieldname: "pallet_no", fieldtype: "Data" },
+//       ],
+//       primary_action_label: "Print",
+//       primary_action(values) {
+//         frm.doc.selected_pallet_no = values.sap_pallet_no;
+//         print_selected_doc(frm);
 
-    let d = new frappe.ui.Dialog({
-      title: "Enter Pallet Number",
-      fields: [
-        { label: "Pallet No", fieldname: "pallet_no", fieldtype: "Data" },
-      ],
-      primary_action_label: "Print",
-      primary_action(values) {
-        var pallets = "";
-        if(values.pallet_no.includes(',')){
-             pallets = values.pallet_no.split(',');
-             pallets.forEach((palletNo) =>{
-                print_selected_doc(frm,palletNo);
-            })
-        
-        }else{
-            pallets = values.pallet_no;
-            print_selected_doc(frm,pallets);
-        
-        }
-        
-        // frm.doc.selected_pallet_no = values.sap_pallet_no;
-        
-        d.hide();
-        frm.print_doc();
-        
-    },
-});
+//         d.hide();
+//       },
+//     });
 
-    d.show();
-    function print_selected_doc(frm,palletref) {
-           
-           
-        frm.doc.selected_product = [];
-        let i = 1;
-        frm.doc.product_details.forEach((product) => {
-            if (product.pallet_no == palletref) {
-                frm.doc.selected_product.push({
-                    ...product,
-                    idx: i
-                });
-                i += 1;
-            }
-        });
-        frm.refresh_field("selected_product");
-        // frm.print_doc();
-    }
-  },
+//     d.show();
+//     function print_selected_doc(frm) {
+//       frm.doc.selected_product = [];
+//       let i = 1;
+//       frm.doc.product_details.forEach((product) => {
+//         if (product.sap_pallet_no == frm.doc.selected_pallet_no) {
+//           frm.doc.selected_product.push({ ...product, idx: i });
+//           i += 1;
+//         }
+//       });
+//       frm.print_doc();
+//     }
+//   },
 });
 
 frappe.ui.form.on("Product Order Details", {
@@ -263,14 +229,16 @@ frappe.ui.form.on("Product Order Details", {
     });
   },
   print_qr: function (frm) {
-    frm.reload_doc();
     is_doc_instantiated(frm);
     let row = frm.selected_doc.idx;
- 
-    update_selected_row(frm,row);
+    // refresh_field("selected_row");
+    frappe.model.set_value(
+      "Product Order",
+      frm.doc.name,
+      "selected_row",
+      row - 1
+    );
     
-    refresh_field("selected_row");
-
     frappe.call({
       async: false,
       method: "sap.api.generate_qr",
@@ -286,7 +254,6 @@ frappe.ui.form.on("Product Order Details", {
       },
       callback: function (r) {
         frm.selected_doc.qr_code = r.message;
-        
         refresh_field("product_details");
         if (
           frm.selected_doc.item_status !== "Inspected" &&
@@ -323,13 +290,17 @@ frappe.ui.form.on("Product Order Details", {
         "selected_qr",
         frm.doc.product_details[row - 1].qr_code
       );
-      
-    frm.save();
-    printQr(frm);
-    }  
-},
+       refresh_field("selected_qr");
+    //    refresh_field("selected_row");
+      frm.save();
+      // frm.doc.product_details[row-1].item_status = "Waiting Quality"
+      // frm.print_doc();
+      printQr(frm);
+     
+    }  },
 
-
+    // "selected_qr",
+    // 
 
   qt_inspection: function (frm) {
     frappe.call({
@@ -368,7 +339,6 @@ function is_doc_instantiated(frm) {
 }
 
 function printQr(frm){
-
     frappe.utils.print(
         frm.doctype,
         frm.docname,
@@ -376,19 +346,4 @@ function printQr(frm){
         frm.doc.letter_head,
         frm.doc.language || frappe.boot.lang
     );
-}
-
-function update_selected_row(frm,row){
-    frappe.call({
-        method: "alquds.alqudsQueries.update_selected_row",
-        args: {
-          doctype: "Product Order",
-          docname: frm.docname,
-          value: row - 1
-        },
-        callback: function (r) {
-        // console.log(r.message.selected_row);
-        // console.log(r.message);
-        },
-      });
 }

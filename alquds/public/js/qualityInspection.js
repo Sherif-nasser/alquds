@@ -19,17 +19,17 @@ frappe.ui.form.on("Quality Inspection", {
           frm.set_value("roll_no", roll_number);
           frm.set_value("pallet_no", pallet_number);
           frm.set_value("production_no", production_number);
+          console.log(frappe._from_link.doc);
         } catch (e) {}
       }
 
+
       if(frm.doc.item_code && frm.doc.type == "صالة"){
           try{
-            var itemCode = frm.doc.item_code;
-            if(itemCode){
               frappe.call({
                 method: 'alquds.alqudsQueries.get_Item_inspection_Template',
                 args:{
-                  itemName : itemCode
+                  itemName : frm.doc.item_code,
                 },
                 callback: function(r) {
                   const inspection_template = (r.message)[1];
@@ -37,13 +37,11 @@ frappe.ui.form.on("Quality Inspection", {
                 }
               });
               frm.refresh_field("quality_inspection_template");
-            }
-            
-            // var item_inspection_template = frappe.db.get_value('Item', {'item_name': itemCode}, 'quality_inspection_template_lab')
         }catch(e){
           console.log(e.message);
         }
       }
+
     },
     // before_save: function (frm) {
       
@@ -61,6 +59,11 @@ frappe.ui.form.on("Quality Inspection", {
         frm.selected_doc.status = realStatus_Quality_Inspection;
       }
       // frm.selected_doc.status = realStatus_Quality_Inspection;
+      // console.log(frappe.db.get_all('Quality Control Details'))
+      // frappe.db.set_value( 'Quality Control Details', name, fieldname, value)
+      let inspectionName = frm.doc.name;
+      let sap = frm.doc.sap_serial_number
+      update_quality_control_details(sap,inspectionName);
     },
     on_submit:function(frm){
       frappe.set_route("/app/quality-control");
@@ -115,7 +118,7 @@ frappe.ui.form.on("Quality Inspection", {
       }
       }
       
-    }
+    },
   
   });
   

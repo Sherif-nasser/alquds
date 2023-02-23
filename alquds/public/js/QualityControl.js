@@ -8,7 +8,7 @@ frappe.ui.form.on('Quality Control', {
         var child = locals[cdt][cdn];
         return {
           filters: [
-            ["item_code", "=", child["item_serial"]],
+            ["sap_serial_number", "=", child["sap_serial_no"]],
             ["type", "=", "صالة"],
             ["docstatus", "=", "1"]
           
@@ -21,7 +21,7 @@ frappe.ui.form.on('Quality Control', {
         var child = locals[cdt][cdn];
         return {
           filters: [
-            ["item_code", "=", child["item_serial"]],
+            ["sap_serial_number", "=", child["sap_serial_no"]],
             ["type", "=", "معملي"],
             ["docstatus", "=", "1"]
           
@@ -41,24 +41,28 @@ frappe.ui.form.on('Quality Control', {
     change_item_status: function (frm,cdt,cdn) {
       var productItems = locals[cdt][cdn].product_items;
         for(var i=0;i<productItems.length;i++){
-          if(productItems[i].qt_status_yard ==  productItems[i].qt_status_lab){
-            productItems[i].final_status = productItems[i].qt_status_yard;
-            console.log(productItems[i].final_status);
-          }
+          // if(productItems[i].qt_status_yard ==  productItems[i].qt_status_lab){
+          //   productItems[i].final_status = productItems[i].qt_status_yard;
+          //   console.log(productItems[i].final_status);
+          // }
 
-          if(productItems[i].qt_status_yard ==  "غير مطابق" || productItems[i].qt_status_lab == "غير مطابق"){
-            productItems[i].final_status = "غير مطابق";
-            console.log(productItems[i].final_status);
-          }
+          // if(productItems[i].qt_status_yard ==  "غير مطابق" || productItems[i].qt_status_lab == "غير مطابق"){
+          //   productItems[i].final_status = "غير مطابق";
+          //   console.log(productItems[i].final_status);
+          // }
 
           if(productItems[i].final_status != "None"){
             productItems[i].quality_status = productItems[i].final_status
             frappe.call({
-              method: "sap.api.update_item_quality",
+              method: "alquds.alqudsQueries.update_item_quality_quds",
               args: {
                 name: productItems[i].item_name,
                 status: productItems[i].quality_status,
                 qt_inspection: productItems[i].qt_inspection || "",
+                qt_lab : productItems[i].qt_inspection_lab,
+                qt_yard: productItems[i].qt_inspection_yard,
+                qt_Status_Lab:productItems[i].qt_status_lab,
+                qt_Status_Yard:productItems[i].qt_status_yard,
               },
             });
           }
@@ -83,13 +87,12 @@ frappe.ui.form.on('Quality Control Details', {
   // },
   final_status:function(frm,cdt,cdn){
       var childitem = locals[cdt][cdn];
-      console.log(childitem);
       frm.refresh_field('product_items');
-      if(frm.selected_doc.final_status == "مطابق"){
-          childitem.qt_status_lab="مطابق";
-          childitem.qt_status_yard="مطابق";
-          frm.refresh_field('product_items');
-      }
+      
+      childitem.qt_status_lab=frm.selected_doc.final_status;
+      childitem.qt_status_yard=frm.selected_doc.final_status;
+      frm.refresh_field('product_items');
+      
   },
 
   // set the qt lab status
@@ -164,6 +167,28 @@ frappe.ui.form.on('Quality Control Details', {
           
         }
   },
+  change_item_status: function (frm,cdt,cdn) {
+    var d = locals[cdt][cdn];
+    console.log(d.sap_serial_no);
+    if(d.final_status != "None"){
+      d.quality_status = d.final_status
+      frappe.call({
+        method: "alquds.alqudsQueries.update_item_quality_quds",
+        args: {
+          name: d.item_name,
+          status: d.quality_status,
+          qt_inspection: d.qt_inspection || "",
+          qt_lab : d.qt_inspection_lab,
+          qt_yard: d.qt_inspection_yard,
+          qt_Status_Lab:d.qt_status_lab,
+          qt_Status_Yard:d.qt_status_yard,
+        },
+      });
+    }else{
+      frappe.msgprint(" Final status for this item is None");
+    }
+  
+  }
   
 
 })
