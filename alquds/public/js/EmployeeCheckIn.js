@@ -5,7 +5,7 @@ frappe.ui.form.on('Employee Checkin', {
     onload(frm) {
         // check_additionalsalary_history_punishment();
         // check_additionalsalary_history_lateness();
-        console.log(frm.doc.employee)
+        console.log(frm.doc.employee);
         // testOverTime()
 
     },
@@ -16,14 +16,14 @@ frappe.ui.form.on('Employee Checkin', {
     after_save(frm) {
         let log_type = frm.doc.log_type;
         let shift = frm.doc.shift;
-        console.log(shift)
+        console.log(shift);
         let employee = frm.doc.employee;
 
         if (log_type == "IN") {
             shift_type(shift).then((message) => {
                 let component = message.message.deduction_component;
                 let LateEntryGracePeriod = message.message.late_entry_grace_period;
-                let PenaletyComponent = message.message.penalty_component
+                let PenaletyComponent = message.message.penalty_component;
                 let ShiftStartTime = message.message.start_time;
                 let ShiftEndTime = message.message.end_time;
                 console.log(ShiftStartTime + 'ShiftStartTime');
@@ -58,7 +58,7 @@ frappe.ui.form.on('Employee Checkin', {
                     console.log(first_time_late);
                     console.log(first_or_second);
 
-                    if (first_time_late && first_or_second == 0) {
+                    if (first_time_late && first_or_second === 0) {
                         additional_salary(employee, PenaletyComponent, quarter_day_deduction, payroll_date);
                         console.log("after first time late");
                     }
@@ -96,8 +96,8 @@ frappe.ui.form.on('Employee Checkin', {
                 let rate = message.message.rate;
                 console.log(over_time_after);
                 console.log("should be greater "+time_of_logout);
-                console.log(parseFloat(time_of_logout.split(" ")[1]) + " Greater than")
-                console.log(parseFloat(over_time_after) + " Less than")
+                console.log(parseFloat(time_of_logout.split(" ")[1]) + " Greater than");
+                console.log(parseFloat(over_time_after) + " Less than");
 
                 if (parseFloat(time_of_logout.split(" ")[1]) > parseFloat(over_time_after)) {
                     console.log(' TRUUUUUE');
@@ -112,9 +112,9 @@ frappe.ui.form.on('Employee Checkin', {
                     
                 }
                 if(parseFloat(time_of_logout.split(" ")[1]) === parseFloat(over_time_after)){
-                    console.log(parseFloat(time_of_logout.split(" ")[1])+ '===' +parseFloat(over_time_after))
+                    console.log(parseFloat(time_of_logout.split(" ")[1])+ '===' +parseFloat(over_time_after));
                     try{
-                        let over_time = calculate_overtime_or_deduction_with_rate_no_round(new Date(time_of_logout), new Date(date_day + " " + over_time_after), rate)
+                        let over_time = calculate_overtime_or_deduction_with_rate_no_round(new Date(time_of_logout), new Date(date_day + " " + over_time_after), rate);
                         frm.set_value("overtime", over_time);
                         additional_salary(employee, OvertimeComponent, over_time, payroll_date);
 
@@ -174,14 +174,14 @@ function calculate_overtime_or_deduction_with_rate_for_ordinary(dateFuture, date
     // calculate minutes
     let minutes = Math.floor(diffInMilliSeconds / 60) % 60;
     diffInMilliSeconds -= minutes * 60;
-    let total_minutes = (hours * 60) + minutes
+    let total_minutes = (hours * 60) + minutes;
     console.log(hours);
 
     console.log(total_minutes + " total_minutes");
     if (grace_period) {
         total_minutes -= grace_period;
     }
-    total_minutes = total_minutes * rate
+    total_minutes = total_minutes * rate;
     return total_minutes;
 }
 
@@ -219,11 +219,11 @@ function calculate_overtime_or_deduction_with_rate_for_ordinary(dateFuture, date
 
 function calculate_overtime_or_deduction_with_rate_no_round(dateFuture, dateNow, rate) {
 
-    console.log(dateFuture);
-    console.log(dateNow);
+    // console.log(dateFuture);
+    // console.log(dateNow);
 
     let diffInMilliSeconds = Math.abs(dateFuture - dateNow) / 1000;
-    console.log(diffInMilliSeconds)
+    console.log(diffInMilliSeconds);
     // calculate hours
     let hours = Math.floor(diffInMilliSeconds / 3600) % 24;
     diffInMilliSeconds -= hours * 3600;

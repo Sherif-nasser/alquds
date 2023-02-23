@@ -6,46 +6,46 @@
 // var remaining_Entered_items = 0;
 
 // var serials = [];
-// /// Product Order  /// 
+// // /// Product Order  /// 
 // frappe.ui.form.on("Product Order", {
-//     onload: function(frm) {
+// //     onload: function(frm) {
         
         
-//         // frappe.call({
-//         //     method: "alquds.alqudsQueries.default_print_format",
-//         //     callback:function(r){
-//         //         console.log(r.message);
-//         //     }
-//         // })
-//         // if (frm.doc.thickness) {
-//         //     frappe.call({
-//         //         async: false,
-//         //         method: "alquds.alqudsQueries.get_data_sheet",
-//         //         args: {
-//         //             Thickness: frm.doc.thickness,
-//         //         },
-//         //         callback: function(r) {
-//         //             if (r.message) {
-//         //                 frm.selected_doc.s = r.message.S;
-//         //                 frm.selected_doc.cl = r.message.CL
-//         //                 frm.selected_doc.fe = r.message.Fe
-//         //                 frm.selected_doc.life_time = r.message.LifeTime
-//         //                 frm.set_df_property("s", "hidden", 0);
-//         //                 frm.set_df_property("cl", "hidden", 0);
-//         //                 frm.set_df_property("fe", "hidden", 0);
-//         //                 frm.set_df_property("life_time", "hidden", 0);
-//         //             } else {
-//         //                 console.log("Thickness value doesn't exist in Roll Details Doctype");
-//         //                 frm.set_df_property("s", "hidden", 1);
-//         //                 frm.set_df_property("cl", "hidden", 1);
-//         //                 frm.set_df_property("fe", "hidden", 1);
-//         //                 frm.set_df_property("life_time", "hidden", 1);
-//         //             }
-//         //         },
-//         //     });
-//         // }
-//         // console.log(frm.doc.thickness);
-//     },
+// //         // frappe.call({
+// //         //     method: "alquds.alqudsQueries.default_print_format",
+// //         //     callback:function(r){
+// //         //         console.log(r.message);
+// //         //     }
+// //         // })
+// //         // if (frm.doc.thickness) {
+// //         //     frappe.call({
+// //         //         async: false,
+// //         //         method: "alquds.alqudsQueries.get_data_sheet",
+// //         //         args: {
+// //         //             Thickness: frm.doc.thickness,
+// //         //         },
+// //         //         callback: function(r) {
+// //         //             if (r.message) {
+// //         //                 frm.selected_doc.s = r.message.S;
+// //         //                 frm.selected_doc.cl = r.message.CL
+// //         //                 frm.selected_doc.fe = r.message.Fe
+// //         //                 frm.selected_doc.life_time = r.message.LifeTime
+// //         //                 frm.set_df_property("s", "hidden", 0);
+// //         //                 frm.set_df_property("cl", "hidden", 0);
+// //         //                 frm.set_df_property("fe", "hidden", 0);
+// //         //                 frm.set_df_property("life_time", "hidden", 0);
+// //         //             } else {
+// //         //                 console.log("Thickness value doesn't exist in Roll Details Doctype");
+// //         //                 frm.set_df_property("s", "hidden", 1);
+// //         //                 frm.set_df_property("cl", "hidden", 1);
+// //         //                 frm.set_df_property("fe", "hidden", 1);
+// //         //                 frm.set_df_property("life_time", "hidden", 1);
+// //         //             }
+// //         //         },
+// //         //     });
+// //         // }
+// //         // console.log(frm.doc.thickness);
+// //     },
 //     close_po: function(frm) {
 //         frm.set_value("order_status", "Finished");
 //         refresh_field("order_status");
@@ -125,149 +125,149 @@
 //         }
 //         frm.refresh_field("image");
 //     },
-//     // thickness: function(frm, cdt, cdn) {
-//     //     var d = locals[cdt][cdn];
-//     //     frappe.call({
-//     //         async: false,
-//     //         method: "alquds.alqudsQueries.get_data_sheet",
-//     //         args: {
-//     //             Thickness: d.thickness,
-//     //         },
-//     //         callback: function(r) {
-//     //             if (r.message) {
-//     //                 console.log("sherif Nasser");
-//     //                 frm.selected_doc.s = r.message.S;
-//     //                 frm.selected_doc.cl = r.message.CL
-//     //                 frm.selected_doc.fe = r.message.Fe
-//     //                 frm.selected_doc.life_time = r.message.LifeTime
-//     //                 frm.refresh_field("s");
-//     //                 frm.refresh_field("cl");
-//     //                 frm.refresh_field("fe");
-//     //                 frm.refresh_field("life_time");
-//     //                 frm.set_df_property("s", "hidden", 0);
-//     //                 frm.set_df_property("cl", "hidden", 0);
-//     //                 frm.set_df_property("fe", "hidden", 0);
-//     //                 frm.set_df_property("life_time", "hidden", 0);
-//     //             } else {
-//     //                 console.log("Thickness value doesn't exist in Roll Details Doctype");
-//     //                 frm.set_df_property("s", "hidden", 1);
-//     //                 frm.set_df_property("cl", "hidden", 1);
-//     //                 frm.set_df_property("fe", "hidden", 1);
-//     //                 frm.set_df_property("life_time", "hidden", 1);
-//     //             }
-//     //         },
-//     //     });
-//     // },
+// //     // thickness: function(frm, cdt, cdn) {
+// //     //     var d = locals[cdt][cdn];
+// //     //     frappe.call({
+// //     //         async: false,
+// //     //         method: "alquds.alqudsQueries.get_data_sheet",
+// //     //         args: {
+// //     //             Thickness: d.thickness,
+// //     //         },
+// //     //         callback: function(r) {
+// //     //             if (r.message) {
+// //     //                 console.log("sherif Nasser");
+// //     //                 frm.selected_doc.s = r.message.S;
+// //     //                 frm.selected_doc.cl = r.message.CL
+// //     //                 frm.selected_doc.fe = r.message.Fe
+// //     //                 frm.selected_doc.life_time = r.message.LifeTime
+// //     //                 frm.refresh_field("s");
+// //     //                 frm.refresh_field("cl");
+// //     //                 frm.refresh_field("fe");
+// //     //                 frm.refresh_field("life_time");
+// //     //                 frm.set_df_property("s", "hidden", 0);
+// //     //                 frm.set_df_property("cl", "hidden", 0);
+// //     //                 frm.set_df_property("fe", "hidden", 0);
+// //     //                 frm.set_df_property("life_time", "hidden", 0);
+// //     //             } else {
+// //     //                 console.log("Thickness value doesn't exist in Roll Details Doctype");
+// //     //                 frm.set_df_property("s", "hidden", 1);
+// //     //                 frm.set_df_property("cl", "hidden", 1);
+// //     //                 frm.set_df_property("fe", "hidden", 1);
+// //     //                 frm.set_df_property("life_time", "hidden", 1);
+// //     //             }
+// //     //         },
+// //     //     });
+// //     // },
 //     generate: function(frm) {
 //         //splittes the ref to get the item_serial then pass it to the backend function
 //         // to get the default print format and pallet print format of the item
-//         var ref = "";
-//         var item_serial = "";
+//         // var ref = "";
+//         // var item_serial = "";
     
-//         $.each(frm.doc.product_details || [], function(i, row) {
-//             ref = frm.doc.product_details[0].ref
+//         // $.each(frm.doc.product_details || [], function(i, row) {
+//         //     ref = frm.doc.product_details[0].ref
  
-//         });
+//         // });
 
-//         if (ref != "") {
-//             item_serial = ref.split('-')[0];
-//         }
+//         // if (ref != "") {
+//         //     item_serial = ref.split('-')[0];
+//         // }
        
         
-//         frappe.call({
-//             method: "alquds.alqudsQueries.get_item_printformat",
-//             args: {
-//                 item_serial: item_serial
-//             },
-//             callback: function(r) {
-//                 // console.log(r.message);
-//                 frm.doc.print_format = r.message[0];
-//                 frm.doc.pallet_print_format = r.message[1];
-//                 frm.refresh_field("print_format");
-//                 frm.refresh_field("pallet_print_format");
-//             }
-//         });
+//         // frappe.call({
+//         //     method: "alquds.alqudsQueries.get_item_printformat",
+//         //     args: {
+//         //         item_serial: item_serial
+//         //     },
+//         //     callback: function(r) {
+//         //         // console.log(r.message);
+//         //         frm.doc.print_format = r.message[0];
+//         //         frm.doc.pallet_print_format = r.message[1];
+//         //         frm.refresh_field("print_format");
+//         //         frm.refresh_field("pallet_print_format");
+//         //     }
+//         // });
 
 //     },
-//     print_selected_pallet: function(frm) {
-//         // stop here
-// 	if(frm.doc.pallet_print_format){
-//         frappe.get_meta("Product Order").default_print_format = frm.doc.pallet_print_format;
-//     	}
-//     console.log(frappe.get_meta("Product Order"));
-//     console.log(frappe.get_meta("Product Order").default_print_format);
+// //     print_selected_pallet: function(frm) {
+// //         // stop here
+// // 	if(frm.doc.pallet_print_format){
+// //         frappe.get_meta("Product Order").default_print_format = frm.doc.pallet_print_format;
+// //     	}
+// //     console.log(frappe.get_meta("Product Order"));
+// //     console.log(frappe.get_meta("Product Order").default_print_format);
 
-//         is_doc_instantiated(frm);
-//         if (!frm.doc.docstatus)
-//             frm.doc.product_details.forEach((product) => {
-//                 frappe.model.set_value(
-//                     "Product Order Details",
-//                     product.name,
-//                     "item_status",
-//                     "Waiting Quality"
-//                 );
-//             });
+// //         is_doc_instantiated(frm);
+// //         if (!frm.doc.docstatus)
+// //             frm.doc.product_details.forEach((product) => {
+// //                 frappe.model.set_value(
+// //                     "Product Order Details",
+// //                     product.name,
+// //                     "item_status",
+// //                     "Waiting Quality"
+// //                 );
+// //             });
 
-//         let d = new frappe.ui.Dialog({
-//             title: "Enter Pallet Number",
-//             fields: [{
-//                 label: "Pallet No",
-//                 fieldname: "pallet_no",
-//                 fieldtype: "Data"
-//             }, ],
-//             primary_action_label: "Print",
-//             primary_action(values) {
-//                 var pallets = "";
-//                 if(values.pallet_no.includes(',')){
-//                      pallets = values.pallet_no.split(',');
-//                      pallets.forEach((palletNo) =>{
-//                         print_selected_doc(frm,palletNo);
-//                     })
+// //         let d = new frappe.ui.Dialog({
+// //             title: "Enter Pallet Number",
+// //             fields: [{
+// //                 label: "Pallet No",
+// //                 fieldname: "pallet_no",
+// //                 fieldtype: "Data"
+// //             }, ],
+// //             primary_action_label: "Print",
+// //             primary_action(values) {
+// //                 var pallets = "";
+// //                 if(values.pallet_no.includes(',')){
+// //                      pallets = values.pallet_no.split(',');
+// //                      pallets.forEach((palletNo) =>{
+// //                         print_selected_doc(frm,palletNo);
+// //                     })
                 
-//                 }else{
-//                     pallets = values.pallet_no;
-//                     print_selected_doc(frm,pallets);
+// //                 }else{
+// //                     pallets = values.pallet_no;
+// //                     print_selected_doc(frm,pallets);
                 
-//                 }
+// //                 }
                 
-//                 // frm.doc.selected_pallet_no = values.sap_pallet_no;
+// //                 // frm.doc.selected_pallet_no = values.sap_pallet_no;
                 
-//                 d.hide();
-//                 // frm.print_doc();
+// //                 d.hide();
+// //                 // frm.print_doc();
                 
-//             },
-//         });
+// //             },
+// //         });
 
-//         d.show();
+// //         d.show();
 
-//         function print_selected_doc(frm,palletref) {
+// //         function print_selected_doc(frm,palletref) {
            
            
-//             // frm.doc.selected_product = [];
-//             let i = 1;
-//             frm.doc.product_details.forEach((product) => {
-//                 if (product.pallet_no == palletref) {
-//                     frm.doc.selected_product.push({
-//                         ...product,
-//                         idx: i
-//                     });
-//                     i += 1;
-//                 }
-//             });
-//             frm.refresh_field("selected_product");
-//             frm.print_doc();
-//         }
-//     },
+// //             // frm.doc.selected_product = [];
+// //             let i = 1;
+// //             frm.doc.product_details.forEach((product) => {
+// //                 if (product.pallet_no == palletref) {
+// //                     frm.doc.selected_product.push({
+// //                         ...product,
+// //                         idx: i
+// //                     });
+// //                     i += 1;
+// //                 }
+// //             });
+// //             frm.refresh_field("selected_product");
+// //             frm.print_doc();
+// //         }
+// //     },
 
 // });
 
-// /// END Product Order  /// 
+// // /// END Product Order  /// 
 
 
 
-// /// Product Order Details  /// 
+// // /// Product Order Details  /// 
 
-// frappe.ui.form.on("Product Order Details", {
+// // frappe.ui.form.on("Product Order Details", {
 
 //     gross_weight: function(frm,cdt,cdn) {
 //         var d = locals[cdt][cdn]
@@ -320,12 +320,12 @@
 //     },
    
 
-// });
+// // });
 
 
-// function is_doc_instantiated(frm) {
-//     // let name = frm.doc.name.split("-");
-//     if (frm.doc.__unsaved) frappe.throw("Save the Doc to generate qr code");
-//   }
+// // function is_doc_instantiated(frm) {
+// //     // let name = frm.doc.name.split("-");
+// //     if (frm.doc.__unsaved) frappe.throw("Save the Doc to generate qr code");
+// //   }
 
-// /// Product Order Details  ///
+// // /// Product Order Details  ///
