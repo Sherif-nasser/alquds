@@ -3,13 +3,16 @@ import frappe
 
 @frappe.whitelist()
 def get_Item_inspection_Template(itemName):
-    lab_inspection_template= frappe.db.get_value("Item",
-        filters={"item_name": itemName},
-        fieldname=['quality_inspection_template_lab'])
+    if itemName:
+        lab_inspection_template= frappe.db.get_value("Item",
+            filters={"name": itemName},
+            fieldname=['quality_inspection_template_lab'])
 
-    yard_inspection_template = frappe.db.get_value("Item",
-        filters={"item_name": itemName},
-        fieldname=['quality_inspection_template'])
+        yard_inspection_template = frappe.db.get_value("Item",
+            filters={"name": itemName},
+            fieldname=['quality_inspection_template'])
+    else:
+        frappe.msgprint("Item Code is missing")
 
     
     return lab_inspection_template,yard_inspection_template
@@ -140,7 +143,7 @@ def update_appraisal_factor(EmployeeName):
 
 
 @frappe.whitelist()
-def update_item_quality_quds(name, status, qt_inspection,qt_lab,qt_yard,qt_Status_Lab,qt_Status_Yard):
+def update_item_quality_quds(name, status, qt_inspection,qt_Status_Lab,qt_Status_Yard,qt_lab = None,qt_yard=None):
     """
     update the status and quality inspection values of the Product Order Details
 
@@ -149,15 +152,26 @@ def update_item_quality_quds(name, status, qt_inspection,qt_lab,qt_yard,qt_Statu
     qt_inspection = Product Order Details new quality inspection value
     """
     doc = frappe.get_doc("Product Order Details", name)
-    doc.quality_status = status
-    doc.item_status = "Inspected"
-    doc.qt_inspection = qt_inspection
-    doc.qt_inspection_lab = qt_lab
-    doc.qt_inspection_yard = qt_yard
-    doc.quality_status_lab = qt_Status_Lab
-    doc.quality_status_yard = qt_Status_Yard
-    doc.save()
-    frappe.db.commit()
+    if qt_lab != None and qt_yard != None:
+        print("not non")
+        doc.quality_status = status
+        doc.item_status = "Inspected"
+        doc.qt_inspection = qt_inspection
+        doc.qt_inspection_lab = qt_lab
+        doc.qt_inspection_yard = qt_yard
+        doc.quality_status_lab = qt_Status_Lab
+        doc.quality_status_yard = qt_Status_Yard
+        doc.save()
+        frappe.db.commit()
+    else:
+        print("none")
+        doc.quality_status = status
+        doc.item_status = "Inspected"
+        doc.qt_inspection = qt_inspection
+        doc.quality_status_lab = qt_Status_Lab
+        doc.quality_status_yard = qt_Status_Yard
+        doc.save()
+        frappe.db.commit()
     return True
 
 

@@ -169,7 +169,6 @@ frappe.ui.form.on('Quality Control Details', {
   },
   change_item_status: function (frm,cdt,cdn) {
     var d = locals[cdt][cdn];
-    console.log(d.sap_serial_no);
     if(d.final_status != "None"){
       d.quality_status = d.final_status
       frappe.call({

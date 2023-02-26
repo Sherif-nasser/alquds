@@ -22,26 +22,6 @@ frappe.ui.form.on("Quality Inspection", {
           console.log(frappe._from_link.doc);
         } catch (e) {}
       }
-
-
-      if(frm.doc.item_code && frm.doc.type == "صالة"){
-          try{
-              frappe.call({
-                method: 'alquds.alqudsQueries.get_Item_inspection_Template',
-                args:{
-                  itemName : frm.doc.item_code,
-                },
-                callback: function(r) {
-                  const inspection_template = (r.message)[1];
-                  frm.set_value('quality_inspection_template',inspection_template);
-                }
-              });
-              frm.refresh_field("quality_inspection_template");
-        }catch(e){
-          console.log(e.message);
-        }
-      }
-
     },
     // before_save: function (frm) {
       
@@ -85,7 +65,6 @@ frappe.ui.form.on("Quality Inspection", {
                 }
               });
               frm.refresh_field("quality_inspection_template");
-              
               frm.refresh_field("readings");
             }
             // var item_inspection_template = frappe.db.get_value('Item', {'item_name': itemCode}, 'quality_inspection_template_lab')
