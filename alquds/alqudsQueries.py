@@ -153,7 +153,7 @@ def update_item_quality_quds(name, status, qt_inspection,qt_Status_Lab,qt_Status
     """
     doc = frappe.get_doc("Product Order Details", name)
     if qt_lab != None and qt_yard != None:
-        print("not non")
+        
         doc.quality_status = status
         doc.item_status = "Inspected"
         doc.qt_inspection = qt_inspection
@@ -164,7 +164,6 @@ def update_item_quality_quds(name, status, qt_inspection,qt_Status_Lab,qt_Status
         doc.save()
         frappe.db.commit()
     else:
-        print("none")
         doc.quality_status = status
         doc.item_status = "Inspected"
         doc.qt_inspection = qt_inspection

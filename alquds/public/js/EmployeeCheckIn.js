@@ -26,37 +26,37 @@ frappe.ui.form.on('Employee Checkin', {
                 let PenaletyComponent = message.message.penalty_component;
                 let ShiftStartTime = message.message.start_time;
                 let ShiftEndTime = message.message.end_time;
-                console.log(ShiftStartTime + 'ShiftStartTime');
-                console.log(ShiftEndTime + 'ShiftEndTime');
+                // console.log(ShiftStartTime + 'ShiftStartTime');
+                // console.log(ShiftEndTime + 'ShiftEndTime');
 
                 let date_day = frm.doc.creation.split(" ")[0];
                 let late_penalty_after = message.message.late_penalty_after; // frm.doc.shift_actual_start.split(" ")[1]
                 let time_of_login = frm.doc.creation;
                 let payroll_date = frm.doc.creation.split(" ")[0];
 
+                // console.log(parseFloat(time_of_login.split(" ")[1]) + "=="+parseFloat(late_penalty_after));
 
                 if (parseFloat(time_of_login.split(" ")[1]) > parseFloat(late_penalty_after)) {
                     let rate = message.message.deduction_rate;
                     let round = message.message.deduction_round;
                     let round_time = message.message.deduction_round_time;
 
-                   
-                    console.log("from else");
-                    console.log('round is false');
+    
+                    // console.log('round is false');
 
                     let late_time = calculate_overtime_or_deduction_with_rate_for_ordinary(new Date(time_of_login), new Date(date_day + " " + late_penalty_after), rate, LateEntryGracePeriod);
                     //  console.log(late_time + " late_time");
                     //  let x = timeDiffCalc(new Date(time_of_login), new Date(date_day + " " + late_penalty_after));
 
                     frm.set_value("deduction", late_time);
-                    //  frm.refresh_field("deduction");
+                    // frm.refresh_field("deduction");
                     let first_or_second = check_additionalsalary_history_punishment(employee, PenaletyComponent);
                     let quarter_day_deduction = calculate_quarter_day(new Date(date_day + " " + ShiftStartTime), new Date(date_day + " " + ShiftEndTime));
                     let half_deduction_date = calculate_half_day(new Date(date_day + " " + ShiftStartTime), new Date(date_day + " " + ShiftEndTime));
                     let first_time_late = check_additionalsalary_history_lateness(employee, component);
 
-                    console.log(first_time_late);
-                    console.log(first_or_second);
+                    // console.log(first_time_late);
+                    // console.log(first_or_second);
 
                     if (first_time_late && first_or_second === 0) {
                         additional_salary(employee, PenaletyComponent, quarter_day_deduction, payroll_date);
@@ -94,17 +94,16 @@ frappe.ui.form.on('Employee Checkin', {
                 let over_time_after = message.message.over_time_after; // cur_frm.doc.shift_actual_end.split(" ")[1]
                 let payroll_date = frm.doc.creation.split(" ")[0];
                 let rate = message.message.rate;
-                console.log(over_time_after);
+                // console.log(over_time_after);
                 console.log("should be greater "+time_of_logout);
                 console.log(parseFloat(time_of_logout.split(" ")[1]) + " Greater than");
                 console.log(parseFloat(over_time_after) + " Less than");
 
                 if (parseFloat(time_of_logout.split(" ")[1]) > parseFloat(over_time_after)) {
-                    console.log(' TRUUUUUE');
                     let rate = message.message.rate;
                     let round = message.message.round;
                     let round_time = message.message.round_time;
-                    console.log("no round marked method calculate_overtime_or_deduction_with_rate_no_round");
+                    // console.log("no round marked method calculate_overtime_or_deduction_with_rate_no_round");
                     let over_time = calculate_overtime_or_deduction_with_rate_no_round(new Date(time_of_logout), new Date(date_day + " " + over_time_after), rate);
                     frm.set_value("overtime", over_time);
                 
@@ -175,9 +174,9 @@ function calculate_overtime_or_deduction_with_rate_for_ordinary(dateFuture, date
     let minutes = Math.floor(diffInMilliSeconds / 60) % 60;
     diffInMilliSeconds -= minutes * 60;
     let total_minutes = (hours * 60) + minutes;
-    console.log(hours);
+    // console.log(hours);
 
-    console.log(total_minutes + " total_minutes");
+    // console.log(total_minutes + " total_minutes");
     if (grace_period) {
         total_minutes -= grace_period;
     }
@@ -315,7 +314,7 @@ function check_additionalsalary_history_punishment(employee, PenaletyComponent) 
             callback: function(r) {
                 let allAdditional = r.message;
 
-                console.log(allAdditional);
+                // console.log(allAdditional);
                 if (allAdditional.length > 0) {
 
                     if (allAdditional.length % 2 != 0) {

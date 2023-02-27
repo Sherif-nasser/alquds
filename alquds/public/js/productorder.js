@@ -200,8 +200,8 @@ sticker_roll_width: function(frm, cdt, cdn) {
             },
             callback: function(r) {
                 // console.log(r.message);
-                frm.doc.print_format = r.message[0];
-                frm.doc.pallet_print_format = r.message[1];
+                frm.doc.print_format = r.message[1]; // default_pallet_print_format
+                frm.doc.pallet_print_format = r.message[0]; // default_print_format
                 frm.refresh_field("print_format");
                 frm.refresh_field("pallet_print_format");
             }
@@ -279,11 +279,11 @@ sticker_roll_width: function(frm, cdt, cdn) {
   },
   print_selected_pallet: function (frm) {
     // stop here
-    if(frm.doc.pallet_print_format){
-        frappe.get_meta("Product Order").default_print_format = frm.doc.pallet_print_format;
-    }
-    console.log(frappe.get_meta("Product Order"));
-    console.log(frappe.get_meta("Product Order").default_print_format);
+    // if(frm.doc.pallet_print_format){
+    //     frappe.get_meta("Product Order").default_print_format = frm.doc.pallet_print_format;
+    // }
+    // console.log(frappe.get_meta("Product Order"));
+    // console.log(frappe.get_meta("Product Order").default_print_format);
 
     is_doc_instantiated(frm);
     console.log(frm.doc.docstatus);
@@ -533,7 +533,7 @@ function printQr(frm){
     frappe.utils.print(
         frm.doctype,
         frm.docname,
-        frm.doc.print_format,
+        frm.doc.pallet_print_format,
         frm.doc.letter_head,
         frm.doc.language || frappe.boot.lang
     );
