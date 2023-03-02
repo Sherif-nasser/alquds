@@ -9,6 +9,11 @@ var remaining_reqd_weight = 0.0;
 var all_rows = 0;
 var remaining_items = 0;
 var remaining_Entered_items = 0;
+////////
+
+var TotalUpdatedNetWeight = 0;
+var TotalUpdatedGrossWeight = 0;
+
 
 var serials = [];
 
@@ -75,7 +80,35 @@ frappe.ui.form.on("Product Order", {
     });
     frm.set_df_property("print_format", "options", print_format_list);
   },
+  before_save(frm){
+    if (!frm.doc.weight_type_sap){
+        frappe.call({
+          method: 'frappe.client.get',
+          args: {
+              doctype: 'Item Group',
+              filters: {
+                item_group_name : frm.doc.item_group,
+              }
+
+              // fields : ['over_time_after','late_penalty_after','start_time','end_time','deduction_rate',
+              // 'rate','round','deduction_round','round_time','deduction_round_time','component','deduction_component'],
+          },
+          callback(r) {
+              console.log(r.message.weight_type);
+              if(r.message.weight_type){
+                frm.set_value("weight_type",r.message.weight_type);
+                frm.refresh_field("weight_type");
+              }else{
+                console.log("No weight type assigned to this item group");
+              }
+              
+          }
+      });
+
+    }
+  },
   onload: function (frm) {
+  
     // set items to read only if sent to sap
     frm.page.sidebar.toggle(false);
     if (!cur_frm.doc.docstatus)
@@ -328,7 +361,6 @@ sticker_roll_width: function(frm, cdt, cdn) {
     d.show();
     function print_selected_doc(frm,palletref) {
            
-           
         frm.doc.selected_product = [];
         let i = 1;
         frm.doc.product_details.forEach((product) => {
@@ -426,11 +458,12 @@ frappe.ui.form.on("Product Order Details", {
     });
   },
   print_qr: function (frm) {
-    frm.reload_doc();
+    // frm.reload_doc();
     is_doc_instantiated(frm);
     let row = frm.selected_doc.idx;
- 
-    update_selected_row(frm,row);
+    
+    // update_selected_row(frm,row);
+    frm.set_value('selected_row',row -1);
     
     refresh_field("selected_row");
 
@@ -488,6 +521,7 @@ frappe.ui.form.on("Product Order Details", {
       );
       
     frm.save();
+    // frm.reload_doc();
     printQr(frm);
     }  
 },
@@ -521,6 +555,57 @@ frappe.ui.form.on("Product Order Details", {
       "quality_status,=," + frm.doc.product_details.quality_status,
     ];
   },
+  remaining_n_weight:function(frm,cdt,cdn){
+    var d = locals[cdt][cdn];
+    if(d.net_weight){
+    TotalUpdatedNetWeight = d.remaining_n_weight + d.net_weight;
+    frappe.model.set_value(d.doctype,d.name,"new_total_net",TotalUpdatedNetWeight);
+  }else{
+    frappe.throw("Please set a net weight first");
+  }
+  },
+  remaining_g_weight:function(frm,cdt,cdn){
+    var d = locals[cdt][cdn];
+    if(d.gross_weight){
+      TotalUpdatedGrossWeight = d.remaining_g_weight + d.gross_weight;
+      frappe.model.set_value(d.doctype,d.name,"new_total_gross",TotalUpdatedGrossWeight);
+    }else{
+      frappe.throw("Please set a gross weight first");
+
+    }
+    
+  },
+  // correct_weight:(frm,cdt,cdn) =>{
+  //   var d = locals[cdt][cdn];
+  //   // frappe.model.set_df_property(d.doctype,d.name,"new_total_gross","hidden",1);
+  // },
+  send_item_to_sap(frm,cdt,cdn){
+    var d = locals[cdt][cdn];
+    is_doc_instantiated(frm);
+    frappe.show_progress("Sending item to Sap..", 100, 100, "Please wait");
+
+      frappe.call({
+        async: false,
+        method: "sap.api.send_single_item_to_sap",
+        args: {
+          product_name: frm.doc.name,
+          itemName: frm.fields_dict["product_details"].grid.data[d.idx -1].name,
+        },
+        callback: function (r) {
+
+          frappe.hide_progress();
+          if (!r.message.success) {
+            frappe.throw(r.message.message);
+          } else {
+            frappe.hide_progress();
+            frappe.msgprint("Item Weight Updated Successfully")
+          }
+        },
+      });
+
+  }
+
+
 });
 
 function is_doc_instantiated(frm) {

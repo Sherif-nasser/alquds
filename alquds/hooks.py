@@ -34,7 +34,7 @@ doctype_js = {
     "Quality Control" : "public/js/QualityControl.js",
     "Product Order" : "public/js/productorder.js",
     "Quality Inspection" : "public/js/qualityInspection.js",
-    "Employee Checkin" : "public/js/EmployeeCheckIn.js"
+    # "Employee Checkin" : "public/js/EmployeeCheckIn.js"
     }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
