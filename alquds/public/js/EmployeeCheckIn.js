@@ -34,21 +34,25 @@ frappe.ui.form.on('Employee Checkin', {
                 let time_of_login = frm.doc.creation;
                 let payroll_date = frm.doc.creation.split(" ")[0];
 
-                // console.log(parseFloat(time_of_login.split(" ")[1]) + "=="+parseFloat(late_penalty_after));
-
-                if (parseFloat(time_of_login.split(" ")[1]) > parseFloat(late_penalty_after)) {
+                if (parseFloat(time_of_login.split(" ")[1]) >= parseFloat(late_penalty_after)) {
                     let rate = message.message.deduction_rate;
                     let round = message.message.deduction_round;
                     let round_time = message.message.deduction_round_time;
 
     
                     // console.log('round is false');
-
-                    let late_time = calculate_overtime_or_deduction_with_rate_for_ordinary(new Date(time_of_login), new Date(date_day + " " + late_penalty_after), rate, LateEntryGracePeriod);
+                    let myPromise = new Promise(function(myResolve, myReject) {
+                        let late_time = calculate_overtime_or_deduction_with_rate_for_ordinary(new Date(time_of_login), new Date(date_day + " " + late_penalty_after), rate, LateEntryGracePeriod);
+                        if(late_time >= 0){
+                            myResolve(late_time)
+                        }else{
+                            myReject("No late time");
+                        }
+                    })
                     //  console.log(late_time + " late_time");
                     //  let x = timeDiffCalc(new Date(time_of_login), new Date(date_day + " " + late_penalty_after));
-
-                    frm.set_value("deduction", late_time);
+                  
+                    // frm.set_value("deduction", late_time);
                     // frm.refresh_field("deduction");
                     let first_or_second = check_additionalsalary_history_punishment(employee, PenaletyComponent);
                     let quarter_day_deduction = calculate_quarter_day(new Date(date_day + " " + ShiftStartTime), new Date(date_day + " " + ShiftEndTime));
@@ -71,12 +75,16 @@ frappe.ui.form.on('Employee Checkin', {
                         additional_salary(employee, PenaletyComponent, half_deduction_date, payroll_date);
                         console.log("calculate_half_day");
                     }
-                    additional_salary(employee, component, late_time, payroll_date);
-
-                    update_appraisal_HR_Factor(employee);
-
                     
-
+                    myPromise.then(
+                        function(value) {
+                            frm.set_value("deduction", value);
+                            additional_salary(employee, component, value, payroll_date);
+                            update_appraisal_HR_Factor(employee);
+                        },
+                        function(error) {msgprint(error);}
+                        
+                    )
                 }
 
 
@@ -99,29 +107,45 @@ frappe.ui.form.on('Employee Checkin', {
                 console.log(parseFloat(time_of_logout.split(" ")[1]) + " Greater than");
                 console.log(parseFloat(over_time_after) + " Less than");
 
-                if (parseFloat(time_of_logout.split(" ")[1]) > parseFloat(over_time_after)) {
-                    let rate = message.message.rate;
-                    let round = message.message.round;
-                    let round_time = message.message.round_time;
+                if (parseFloat(time_of_logout.split(" ")[1]) >= parseFloat(over_time_after)) {
+                    // let rate = message.message.rate;
+                    // let round = message.message.round;
+                    // let round_time = message.message.round_time;
                     // console.log("no round marked method calculate_overtime_or_deduction_with_rate_no_round");
-                    let over_time = calculate_overtime_or_deduction_with_rate_no_round(new Date(time_of_logout), new Date(date_day + " " + over_time_after), rate);
-                    frm.set_value("overtime", over_time);
-                
-                    additional_salary(employee, OvertimeComponent, over_time, payroll_date);
-                    
-                }
-                if(parseFloat(time_of_logout.split(" ")[1]) === parseFloat(over_time_after)){
-                    console.log(parseFloat(time_of_logout.split(" ")[1])+ '===' +parseFloat(over_time_after));
-                    try{
+                    let myPromise = new Promise(function(myResolve, myReject) {
                         let over_time = calculate_overtime_or_deduction_with_rate_no_round(new Date(time_of_logout), new Date(date_day + " " + over_time_after), rate);
-                        frm.set_value("overtime", over_time);
-                        additional_salary(employee, OvertimeComponent, over_time, payroll_date);
+                        if(over_time > 0){
+                            myResolve(over_time);
+                        }else{
+                            myReject("No overtime calculated");
 
-                    }catch(e){
-                        console.log(e.message);
-                    }
+                        }
+
+                    })
+                    myPromise.then(
+                        function(value) {
+                            frm.set_value("overtime", value);
+                            additional_salary(employee, OvertimeComponent, value, payroll_date);
+
+                        },
+                        function(error) {msgprint(error);}
+                    )
+            
+                
                     
                 }
+                // if(parseFloat(time_of_logout.split(" ")[1]) === parseFloat(over_time_after)){
+                //     console.log(parseFloat(time_of_logout.split(" ")[1])+ '===' +parseFloat(over_time_after));
+                //     try{
+                //         let over_time = calculate_overtime_or_deduction_with_rate_no_round(new Date(time_of_logout), new Date(date_day + " " + over_time_after), rate);
+                //         frm.set_value("overtime", over_time);
+                //         additional_salary(employee, OvertimeComponent, over_time, payroll_date);
+
+                //     }catch(e){
+                //         console.log(e.message);
+                //     }
+                    
+                // }
             });
         }
 
@@ -163,9 +187,10 @@ function update_appraisal_HR_Factor(employee){
 
 
 function calculate_overtime_or_deduction_with_rate_for_ordinary(dateFuture, dateNow, rate, grace_period) {
+    
     let diffInMilliSeconds = Math.abs(dateFuture - dateNow) / 1000;
 
-
+    console.log(diffInMilliSeconds + " diffInMilliSeconds");
 
     let hours = Math.floor(diffInMilliSeconds / 3600) % 24;
     diffInMilliSeconds -= hours * 3600;
@@ -175,10 +200,14 @@ function calculate_overtime_or_deduction_with_rate_for_ordinary(dateFuture, date
     diffInMilliSeconds -= minutes * 60;
     let total_minutes = (hours * 60) + minutes;
     // console.log(hours);
+    console.log(diffInMilliSeconds + " diffInMilliSeconds");
 
     // console.log(total_minutes + " total_minutes");
     if (grace_period) {
         total_minutes -= grace_period;
+        if(total_minutes<0){
+            total_minutes = 0;
+        }
     }
     total_minutes = total_minutes * rate;
     return total_minutes;
