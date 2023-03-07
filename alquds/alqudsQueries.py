@@ -124,6 +124,25 @@ def get_additional_salaries_history(EmployeeName,comp):
     return additional_salarie
 
 @frappe.whitelist()
+def update_absent(Employee,docname):
+    attendances = frappe.get_all("Attendance",filters={
+        "employee_name":["=", Employee],
+        "status":["=", "Absent"]
+        })
+
+    for obj in attendances:
+        doc = frappe.get_doc("Appraisal",docname).as_dict()
+        for compo in doc.components:
+            if compo.type == "غياب بالخصم":
+                value = compo.value
+                componentName = compo.name
+                frappe.db.set_value('Appraisal Components', compo.name, 'value', (value + 1))
+
+    return "Appraisal Component Updated"
+
+
+
+@frappe.whitelist()
 def update_appraisal_factor(EmployeeName):
     componentName = ""
     appraisal = frappe.get_all("Appraisal",filters={"employee":["=", EmployeeName]})
@@ -133,7 +152,7 @@ def update_appraisal_factor(EmployeeName):
             if compo.type == 'Late':
                 value = compo.value
                 componentName = compo.name
-                frappe.db.set_value('Appraisal Components', compo.name, 'value', (value - 1))
+                frappe.db.set_value('Appraisal Components', compo.name, 'value', (value + 1))
               
     
     return f"{componentName}  Updated"
