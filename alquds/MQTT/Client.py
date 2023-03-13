@@ -4,11 +4,6 @@ import time
 
 
 
-# class QudsMqtt():
-
-#     def __init__(self, fname, lname):
-#         print("Class QudsMqtt Invoked")
-
 def on_message(client, userdata, message):
     print ( message.payload)
 
@@ -24,6 +19,10 @@ def on_connect(client, userdata, flags, rc):
     else:
 
         print("Connection failed")
+
+def on_publish(client,userdata,result):             #create function for callback
+    print("data published \n")
+    pass
 
 Connected = False #global variable for the state of the connection
 
@@ -47,6 +46,7 @@ while Connected != True:    #Wait for connection
     time.sleep(0.2)
 
 client.subscribe("python/test")
+# client.publish("python/test","on")
 
 
 try:

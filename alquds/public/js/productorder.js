@@ -108,17 +108,45 @@ frappe.ui.form.on("Product Order", {
     }
   },
   onload: function (frm) {
-  
     // set items to read only if sent to sap
+    frm.fields_dict["product_details"].grid.get_field("quality_status_lab").get_query =
+      function (doc, cdt, cdn) {
+        var child = locals[cdt][cdn];
+        return {
+          filters: [
+            ["is_quality", "=", "0"],
+          ],
+        };
+      };
+      frm.fields_dict["product_details"].grid.get_field("quality_status_yard").get_query =
+      function (doc, cdt, cdn) {
+        var child = locals[cdt][cdn];
+        return {
+          filters: [
+            ["is_quality", "=", "0"],
+          ],
+        };
+      };
+
+      frm.fields_dict["product_details"].grid.get_field("qt_final").get_query =
+      function (doc, cdt, cdn) {
+        var child = locals[cdt][cdn];
+        return {
+          filters: [
+            ["is_quality", "=", "0"],
+          ],
+        };
+      };
+
     frm.page.sidebar.toggle(false);
     if (!cur_frm.doc.docstatus)
       frm.set_value("shift_employee", frappe.user.name);
-    frm.doc.product_details.forEach((product) => {
+      frm.doc.product_details.forEach((product) => {
        if (product.item_status == "Sent to SAP") product.docstatus = 1;
     });
     refresh_field("product_details");
   },
-  close_po: function(frm) {
+close_po: function(frm) {
     frm.set_value("order_status", "Finished");
     refresh_field("order_status");
     console.log(frm.selected_doc.order_status);
