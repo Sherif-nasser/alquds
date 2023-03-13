@@ -16,6 +16,36 @@ frappe.ui.form.on('Quality Control', {
         };
       };
 
+      frm.fields_dict["product_items"].grid.get_field("qt_status_lab").get_query =
+      function (doc, cdt, cdn) {
+        var child = locals[cdt][cdn];
+        return {
+          filters: [
+            ["is_quality", "=", "0"],
+          ],
+        };
+      };
+
+      frm.fields_dict["product_items"].grid.get_field("qt_status_yard").get_query =
+      function (doc, cdt, cdn) {
+        var child = locals[cdt][cdn];
+        return {
+          filters: [
+            ["is_quality", "=", "0"],
+          ],
+        };
+      };
+
+      frm.fields_dict["product_items"].grid.get_field("final_status").get_query =
+      function (doc, cdt, cdn) {
+        var child = locals[cdt][cdn];
+        return {
+          filters: [
+            ["is_quality", "=", "0"],
+          ],
+        };
+      };
+
       frm.fields_dict["product_items"].grid.get_field("qt_inspection_lab").get_query =
       function (doc, cdt, cdn) {
         var child = locals[cdt][cdn];
@@ -29,13 +59,7 @@ frappe.ui.form.on('Quality Control', {
         };
       };
       
-        // frm.fields_dict["product_items"].grid.get_field("qt_inspection").get_query =
-        // function (doc, cdt, cdn) {
-        //   var child = locals[cdt][cdn];
-        //   return {
-        //     filters: [["sap_serial_number", "=", child["sap_serial_no"]]],
-        //   };
-        // };
+      
       
     },
     change_item_status: function (frm,cdt,cdn) {
@@ -195,3 +219,17 @@ frappe.ui.form.on('Quality Control Details', {
 /// END Quality Control Details  ///
 
 
+
+frappe.ui.form.on('QC Integration', {
+  onload:function(frm){
+    frm.fields_dict["batch_numbers"].grid.get_field("status").get_query =
+      function (doc, cdt, cdn) {
+        var child = locals[cdt][cdn];
+        return {
+          filters: [
+            ["is_quality", "=", "1"],
+          ],
+        };
+      };
+  }
+})

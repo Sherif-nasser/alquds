@@ -34,8 +34,9 @@ doctype_js = {
     "Quality Control" : "public/js/QualityControl.js",
     "Product Order" : "public/js/productorder.js",
     "Quality Inspection" : "public/js/qualityInspection.js",
-    "Appraisal": "public/js/appraisal.js"
-    # "Employee Checkin" : "public/js/EmployeeCheckIn.js"
+    "Appraisal": "public/js/appraisal.js",
+    "QC Integration" : "public/js/QualityControl.js",
+    # "Bank Guarantee": "public/js/MurabhaScripts/bank_guarantee.js",
     }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
