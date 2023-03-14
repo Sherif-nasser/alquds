@@ -88,14 +88,16 @@ frappe.ui.form.on('Bank Guarantee', {
             async function insert_doc() {
                 let log = '';
                 for(let pay of frm.doc.payment) {
-                    log = frappe.model.get_new_doc("Bank Account Log");
-                    log.bank_guarantee = frm.doc.name;
-                    log.bank_account = frm.doc.bank_account;
-                    log.account_currency = frm.doc.bank_currency;
-                    log.credit = pay.exchanged_amount;
-                    log.type = 'payment';
-                    log.other = pay.payment;
-                    await frappe.db.insert(log);
+                    if(pay.payment == "Deduction from cover"){
+                        log = frappe.model.get_new_doc("Bank Account Log");
+                        log.bank_guarantee = frm.doc.name;
+                        log.bank_account = frm.doc.bank_account;
+                        log.account_currency = frm.doc.bank_currency;
+                        log.credit = pay.exchanged_amount;
+                        log.type = 'payment';
+                        log.other = pay.payment;
+                        await frappe.db.insert(log);
+                    }
                 }
                 // await set_available(frm)
                 frm.reload_doc();
