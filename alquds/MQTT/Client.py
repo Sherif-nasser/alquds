@@ -26,26 +26,26 @@ def on_publish(client,userdata,result):             #create function for callbac
 
 Connected = False #global variable for the state of the connection
 
-broker_address= "localhost"
+broker_address= "MQTT.MasterOfThings.com"
 port = 1883
-user = "sherif"
-password = "s123"
+user = "AlQuds"
+password = "AlQuds_Pass"
 
 
 client = mqtt.Client("MQTT")          #create new instance
 client.username_pw_set(user, password=password)    #set username and password
-client.tls_set(cert_reqs=ssl.CERT_REQUIRED)
+# client.tls_set()
 client.on_connect= on_connect                      #attach function to callback
-client.on_message= on_message 
+client.on_message= on_message
 
 
 client.connect(broker_address, port=port)  #connect to broker
 client.loop_start()                       #start the loop
-
+# b'+1594.30'
 while Connected != True:    #Wait for connection
     time.sleep(0.2)
 
-client.subscribe("python/test")
+client.subscribe("AlQuds/scaler1")
 # client.publish("python/test","on")
 
 

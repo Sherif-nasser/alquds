@@ -6,11 +6,13 @@ onload:function(frm){
 },
 before_save:function(frm){
 // let total_amount = frm.doc.total_amount;
-let cover_amount = frm.doc.cover_money;
+let cover_amount = frm.doc.total_cover_money;
 let commission  = frm.doc.commission;
 let bank_account = frm.doc.bank_account;
 let currencey = frm.doc.currency;
-    // if(cover_amount && bank_account){
+
+    
+    // if(bank_account && frm.doc.payment_term == "Avalized"){
     //     frappe.call({
     //         method:"alquds.MurabhaController.Murabha.update_bank_account",
     //         args:{
@@ -22,6 +24,8 @@ let currencey = frm.doc.currency;
     //         },
     //     })
     // }
+    
+
     frm.set_value('currency', currencey);
 
     if(!frm.doc.docstatus){
@@ -54,12 +58,15 @@ frappe.ui.form.on('Document Payment', {
 
 frappe.ui.form.on('Bank Guarantee', {
     refresh: function(frm) {
+        
         if(frm.doc.docstatus) {
             handle_refresh(frm)
         }
          
     },
     after_save: function(frm) {
+        let currencey = frm.doc.currency;
+        frm.set_value('currency', currencey);
         if(frm.doc.docstatus) {
             frappe.call({
                 method: 'frappe.client.get_list',
@@ -78,7 +85,6 @@ frappe.ui.form.on('Bank Guarantee', {
                     del_doc(r);
                 }
             });
-            
             async function insert_doc() {
                 let log = '';
                 for(let pay of frm.doc.payment) {
@@ -94,7 +100,10 @@ frappe.ui.form.on('Bank Guarantee', {
                 // await set_available(frm)
                 frm.reload_doc();
             }
-            insert_doc();
+            if(frm.doc.payment_term == "Avalized"){
+
+                insert_doc();
+            }
         }
     },
     onload: function(frm) {
@@ -104,22 +113,29 @@ frappe.ui.form.on('Bank Guarantee', {
 
 	},
 	before_submit: function(frm) {
+        let currencey = frm.doc.currency;
+        frm.set_value('currency', currencey);
+        let payment_status = frm.doc.payment_status;
         
-	    let exch = get_exchange(frm.doc.bank_currency, frm.doc.currency);
+	    let exch = get_exchange(frm.doc.bank_currency, frm.doc.currencey);
 	    console.log(frm.doc.currency);
 	    let credit = exch * frm.doc.bank_available_amount;
 	    
 	    if(credit - frm.doc.amount < 0) {
 	        frappe.throw("There is no enough credit in the bank");
 	    }
+        frm.set_value("payment_status",payment_status);
 	},
 	on_submit: function(frm) {
-	    async function sumb(frm) {
-	        await insert_log(frm, 'debit', 'bank guarantee');
-	       // await set_available(frm);
-	        cur_dialog.hide();
-	    }
-	    sumb(frm);
+      
+        if(frm.doc.payment_term == "Avalized" ){
+            async function sumb(frm) {
+                await insert_log(frm, 'debit', 'bank guarantee');
+            // await set_available(frm);
+                cur_dialog.hide();
+            }
+            sumb(frm);
+        }
 	},
 	after_cancel: function(frm) {
 	  let later_remove = [];
@@ -335,17 +351,14 @@ async function insert_log(frm, cat, type) {
     log.bank_account = frm.doc.bank_account;
     log.currency = frm.doc.bank_currency;
     log.type = type;
-    // let exch = get_exchange(frm.doc.currency, frm.doc.bank_currency);
+    let exch = get_exchange(frm.doc.currency, frm.doc.bank_currency);
     console.log(exch +" The exchange rate comes from Currency Exchange from " + frm.doc.currency + " To "+ frm.doc.bank_currency)
-    console.log(frm.doc.amount)
-    console.log(frm.doc.amount * exch)
-
-    if(cat == 'debit') {
-        log.debit = frm.doc.amount;
-        
-        } else {
-            log.credit = frm.doc.amount;
-        }
+    // console.log(frm.doc.amount)
+    // console.log(frm.doc.amount * exch)
+    // console.log(bank_guarantee);
+    // console.log(frm.doc.bank_account);
+    // console.log(frm.doc.bank_currency);
+    log.debit = frm.doc.amount; 
     await frappe.db.insert(log)
 }
 
