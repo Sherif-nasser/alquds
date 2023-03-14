@@ -586,7 +586,7 @@ frappe.ui.form.on("Product Order Details", {
   remaining_n_weight:function(frm,cdt,cdn){
     var d = locals[cdt][cdn];
     if(d.net_weight){
-    TotalUpdatedNetWeight = d.remaining_n_weight + d.net_weight;
+    TotalUpdatedNetWeight = parseInt(d.remaining_n_weight) + parseInt(d.net_weight);
     frappe.model.set_value(d.doctype,d.name,"new_total_net",TotalUpdatedNetWeight);
   }else{
     frappe.throw("Please set a net weight first");
@@ -595,7 +595,7 @@ frappe.ui.form.on("Product Order Details", {
   remaining_g_weight:function(frm,cdt,cdn){
     var d = locals[cdt][cdn];
     if(d.gross_weight){
-      TotalUpdatedGrossWeight = d.remaining_g_weight + d.gross_weight;
+      TotalUpdatedGrossWeight = parseInt(d.remaining_g_weight) + parseInt(d.gross_weight);
       frappe.model.set_value(d.doctype,d.name,"new_total_gross",TotalUpdatedGrossWeight);
     }else{
       frappe.throw("Please set a gross weight first");
@@ -603,10 +603,7 @@ frappe.ui.form.on("Product Order Details", {
     }
     
   },
-  // correct_weight:(frm,cdt,cdn) =>{
-  //   var d = locals[cdt][cdn];
-  //   // frappe.model.set_df_property(d.doctype,d.name,"new_total_gross","hidden",1);
-  // },
+
   send_item_to_sap(frm,cdt,cdn){
     var d = locals[cdt][cdn];
     is_doc_instantiated(frm);
